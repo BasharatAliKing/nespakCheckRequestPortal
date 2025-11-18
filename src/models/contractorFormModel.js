@@ -82,7 +82,7 @@ const contractorFormSchema=new mongoose.Schema({
         default: 'pending',
     }, 
     consultant_update_date: {
-        type: Date,
+        type: String,
        // required: false,
     },
     consultant_update_time: {
@@ -105,7 +105,7 @@ const contractorFormSchema=new mongoose.Schema({
         // required: false,
     },
     inspector_update_date: {
-        type: Date,
+        type: String,
         // required: false,
     },
     inspector_update_time: {
@@ -128,7 +128,7 @@ const contractorFormSchema=new mongoose.Schema({
       //  required: false,
     },
     me_update_date: {
-        type: Date,
+        type: String,
       //  required: false,
     },
     me_update_time: {
@@ -151,7 +151,7 @@ const contractorFormSchema=new mongoose.Schema({
         required: false,
     },
     are_update_date: {
-        type: Date,
+        type: String,
         required: false,
     },
     are_update_time: {
@@ -174,7 +174,7 @@ const contractorFormSchema=new mongoose.Schema({
         required: false,
     },
     re_update_date: {
-        type: Date,
+        type: String,
         required: false,
     },
     re_update_time: {
