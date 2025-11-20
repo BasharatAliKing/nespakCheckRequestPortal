@@ -2,6 +2,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 const express = require('express');
 const app = express();
+const cors=require("cors");
 const port = process.env.PORT || 3000;
 const contractorFormRouter = require('./routes/contractorFormRouter');
 const clientRouter = require('./routes/clientRouter');
@@ -10,7 +11,12 @@ const consultantRouter = require('./routes/consultantRouter');
 const userRouter = require('./routes/userRouter');
 const projectRouter = require('./routes/projectRouter');
 require('./db/conn');
+const allowedOrigins = ["https://k2taj.co.uk", "https://www.k2taj.co.uk", "http://localhost:5173"];
 
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static('uploads'));

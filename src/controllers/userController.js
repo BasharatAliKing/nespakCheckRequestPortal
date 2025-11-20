@@ -82,7 +82,6 @@ const login = async (req, res) => {
         res.status(400).json({ message: "Error in login", err });
     }
 };
-
 // Get all users
 const getUsers = async (req, res) => {
     try {
@@ -92,7 +91,6 @@ const getUsers = async (req, res) => {
         res.status(400).json({ message: "Error in retrieving users", err });
     }
 };
-
 // Get user by ID
 const getUserById = async (req, res) => {
     try {
@@ -108,7 +106,6 @@ const getUserById = async (req, res) => {
         res.status(400).json({ message: "Error in retrieving user", err });
     }
 };
-
 // Update user
 const updateUser = async (req, res) => {
     try {
@@ -147,7 +144,6 @@ const updateUser = async (req, res) => {
         res.status(400).json({ message: "Error in updating user", err });
     }
 };
-
 // Delete user
 const deleteUser = async (req, res) => {
     try {

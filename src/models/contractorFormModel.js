@@ -2,9 +2,9 @@ const mongoose=require('mongoose');
 
 // schema here
 const contractorFormSchema=new mongoose.Schema({
-    project_name: {
-        type: String,
-        required: true,
+    project_id:{
+        type:String,
+        required:true,
     },
     rfi_no: {
         type: String,
@@ -59,11 +59,11 @@ const contractorFormSchema=new mongoose.Schema({
     },
     contractor_status: {
         type: String,
-        enum: ['send', 'received', 'empty'],
+        enum: ['send', 'received', 'approved','rejected','expired'],
         default: 'empty',
     },
     contractor_submit_date: {
-        type: Date,
+        type: String,
        // required: false,
     },
     contractor_submit_time: {
@@ -78,7 +78,7 @@ const contractorFormSchema=new mongoose.Schema({
     },
     consultant_status: {
         type: String,
-        enum: ['receivedfromcontractor', 'pending','sendedtocontractor','receivedfromre'],
+        enum: ['received_from_contractor', 'pending','send_to_contractor','received_from_re'],
         default: 'pending',
     }, 
     consultant_update_date: {
@@ -109,6 +109,28 @@ const contractorFormSchema=new mongoose.Schema({
         // required: false,
     },
     inspector_update_time: {
+        type: String,
+        // required: false,
+    },
+    // Surveyor fields
+    surveyor_name: {
+        type: String,
+      //  required: true,
+    },
+    surveyor_remarks: {
+        type: String,
+        // required: false,
+    },
+    surveyor_status: {
+        type: String,
+        enum: ['okay', 'not_okay'],
+        // required: false,
+    },
+    surveyor_update_date: {
+        type: String,
+        // required: false,
+    },
+    surveyor_update_time: {
         type: String,
         // required: false,
     },
