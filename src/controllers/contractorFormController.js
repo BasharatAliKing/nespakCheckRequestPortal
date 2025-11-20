@@ -30,8 +30,7 @@ const getContractorkpis=async(req,res)=>{
         
         const kpiData = {
             total_length,
-          //  names: uniqueNames,
-            total_request,
+           total_request,
             received_request,
             approved,
             not_approved,
@@ -47,13 +46,11 @@ const getContractorkpis=async(req,res)=>{
 const getContractorkpisByProject=async(req,res)=>{
     try{
         // Get project_id from query parameters (optional)
-        const { project_id } = req.query;
-        
+        const { id } = req.params;
         // Build filter object
-        const filter = project_id ? { project_id } : {};
-        
-        const contractorForms=await ContractorForm.find(filter);
-        
+       
+        const contractorForms=await ContractorForm.find({project_id: id});
+        console.log(contractorForms);
         // Get unique contractor names
         const uniqueNames = [...new Set(contractorForms
             .map(form => form.contractor_name)
@@ -80,7 +77,6 @@ const getContractorkpisByProject=async(req,res)=>{
         
         const kpiData = {
             total_length,
-            names: uniqueNames,
             total_request,
             received_request,
             approved,

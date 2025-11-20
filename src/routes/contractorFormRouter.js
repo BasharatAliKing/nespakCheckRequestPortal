@@ -13,7 +13,7 @@ const authMiddleware=require('../middleware/authMiddleware');
 
 // KPI route must come before :id route to avoid conflicts
 router.get('/main-form/contractorkpis',authMiddleware,getContractorkpis);
-router.get('/main-form/contractorkpis/:projectId',authMiddleware,getContractorkpisByProject);
+router.get('/main-form/contractorkpis/:id',authMiddleware,getContractorkpisByProject);
 // All routes require authentication
 router.post('/main-form',authMiddleware,createContractorForm);
 router.get('/main-form',authMiddleware,getContractorForms);
