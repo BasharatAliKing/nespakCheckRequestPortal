@@ -11,7 +11,7 @@ const consultantRouter = require('./routes/consultantRouter');
 const userRouter = require('./routes/userRouter');
 const projectRouter = require('./routes/projectRouter');
 require('./db/conn');
-const allowedOrigins = ["https://k2taj.co.uk", "https://www.k2taj.co.uk", "http://localhost:5173"];
+const allowedOrigins = ["https://ncrp.cmsurveycell.com", "http://localhost:5173"];
 
 app.use(cors({
   origin: allowedOrigins,

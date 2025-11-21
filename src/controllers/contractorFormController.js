@@ -1,170 +1,417 @@
-const express=require('express');
-const ContractorForm=require('../models/contractorFormModel');
+const express = require("express");
+const ContractorForm = require("../models/contractorFormModel");
 
+const getContractorkpis = async (req, res) => {
+  try {
+    const contractorForms = await ContractorForm.find();
+    // Get unique contractor names
+    const uniqueNames = [
+      ...new Set(
+        contractorForms
+          .map((form) => form.contractor_name)
+          .filter((name) => name)
+      ),
+    ];
+    // Calculate statistics
+    const total_length = contractorForms.length;
+     const total_request = contractorForms.filter((form) =>
+      ["send", "received", "approved", "rejected", "expired"].includes(
+        form.contractor_status
+      )
+    ).length;
+    const received_request = contractorForms.filter(
+      (form) => form.contractor_status === "received"
+    ).length;
+    const approved = contractorForms.filter(
+      (form) => form.contractor_status === "approved"
+    ).length;
+    const not_approved = contractorForms.filter(
+      (form) => form.contractor_status === "rejected"
+    ).length;
+    const expired = contractorForms.filter(
+      (form) => form.contractor_status === "expired"
+    ).length;
 
-const getContractorkpis=async(req,res)=>{
-    try{
-        const contractorForms=await ContractorForm.find();
-        // Get unique contractor names
-        const uniqueNames = [...new Set(contractorForms
-            .map(form => form.contractor_name)
-            .filter(name => name))];
-        // Calculate statistics
-        const total_length = contractorForms.length;
-        console.log(total_length);
-        const total_request = contractorForms.filter(form => 
-            ['send', 'received', 'approved', 'rejected', 'expired'].includes(form.contractor_status)
-        ).length;
-        const received_request = contractorForms.filter(form => 
-            form.contractor_status === 'received'
-        ).length;
-        const approved = contractorForms.filter(form => 
-            form.contractor_status === 'approved'
-        ).length;
-        const not_approved = contractorForms.filter(form => 
-            form.contractor_status === 'rejected'
-        ).length;
-        const expired = contractorForms.filter(form => 
-            form.contractor_status === 'expired'
-        ).length;
-        
-        const kpiData = {
-            total_length,
-           total_request,
-            received_request,
-            approved,
-            not_approved,
-            expired
-        };
-      
-        res.status(200).json({message:"Contractor KPIs Retrieved Successfully", kpiData});
-    }catch(err){
-        res.status(400).json({message:"Error in Retrieving Contractor KPIs",err});
+    const consultant_pending = contractorForms.filter(
+        (form) => form.consultant_status === "pending"
+    ).length;
+    const consultant_received_from_contractor = contractorForms.filter(
+        (form) => form.consultant_status === "received_from_contractor"
+    ).length;
+    const consultant_send_to_contractor = contractorForms.filter(
+        (form) => form.consultant_status === "send_to_contractor"
+    ).length;
+    const consultant_received_from_re = contractorForms.filter(
+        (form) => form.consultant_status === "received_from_re"
+    ).length;
+    const inspector_okay = contractorForms.filter(
+        (form) => form.inspector_status === "okay"
+    ).length;
+    const inspector_not_okay = contractorForms.filter(
+        (form) => form.inspector_status === "not_okay"
+    ).length;
+    const inspector_pending = contractorForms.filter(
+        (form) => !form.inspector_status
+    ).length;
+    const inspector_total = inspector_okay + inspector_not_okay + inspector_pending;
+    const surveyor_okay = contractorForms.filter(
+        (form) => form.surveyor_status === "okay"
+    ).length;
+    const surveyor_not_okay = contractorForms.filter(
+        (form) => form.surveyor_status === "not_okay"
+    ).length;
+    const surveyor_pending = contractorForms.filter(
+        (form) => !form.surveyor_status
+    ).length;
+    const surveyor_total = surveyor_okay + surveyor_not_okay + surveyor_pending;
+    const me_okay = contractorForms.filter(
+        (form) => form.me_status === "okay"
+    ).length;
+    const me_not_okay = contractorForms.filter(
+        (form) => form.me_status === "not_okay"
+    ).length;
+    const me_pending = contractorForms.filter(
+        (form) => !form.me_status
+    ).length;
+    const me_total = me_okay + me_not_okay + me_pending;
+    const are_okay = contractorForms.filter(
+        (form) => form.are_status === "okay"
+    ).length;
+    const are_not_okay = contractorForms.filter(
+        (form) => form.are_status === "not_okay"
+    ).length;
+    const are_pending = contractorForms.filter(
+        (form) => !form.are_status
+    ).length;
+    const are_total = are_okay + are_not_okay + are_pending;
+    const re_approved = contractorForms.filter(
+        (form) => form.re_status === "approved"
+    ).length;
+    const re_not_approved = contractorForms.filter(
+        (form) => form.re_status === "not_approved"
+    ).length;
+    const re_pending = contractorForms.filter(
+        (form) => !form.re_status
+    ).length;
+    const re_total = re_approved + re_not_approved + re_pending;
+
+    //enum: ['received_from_contractor', 'pending','send_to_contractor','received_from_re'],
+    const kpiData = {
+      total_length,
+      constractor: {
+        total_request,
+        received_request,
+        approved,
+        not_approved,
+        expired,
+      },
+         consultant: {
+        consultant_pending,
+        consultant_received_from_contractor,
+        consultant_send_to_contractor,
+        consultant_received_from_re,
+        },
+      inspector: {
+        inspector_total,
+        inspector_okay,
+        inspector_not_okay,
+        inspector_pending,
+      },
+        surveyor: {
+        surveyor_total,
+        surveyor_okay,
+        surveyor_not_okay,
+        surveyor_pending,
+        },
+        me: {
+        me_total,
+        me_okay,
+        me_not_okay,
+        me_pending,
+        },
+        are: {
+        are_total,
+        are_okay,
+        are_not_okay,
+        are_pending,
+        },
+        re: {
+        re_total,
+        re_approved,
+        re_not_approved,
+        re_pending,
+        },  
+    };
+
+    res
+      .status(200)
+      .json({ message: "Contractor KPIs Retrieved Successfully", kpiData });
+  } catch (err) {
+    res
+      .status(400)
+      .json({ message: "Error in Retrieving Contractor KPIs", err });
+  }
+};
+
+const getContractorkpisByProject = async (req, res) => {
+  try {
+    // Get project_id from query parameters (optional)
+    const { id } = req.params;
+    // Build filter object
+
+    const contractorForms = await ContractorForm.find({ project_id: id });
+    console.log(contractorForms);
+    // Get unique contractor names
+    const uniqueNames = [
+      ...new Set(
+        contractorForms
+          .map((form) => form.contractor_name)
+          .filter((name) => name)
+      ),
+    ];
+    // Calculate statistics
+    const total_length = contractorForms.length;
+    console.log(total_length);
+    const total_request = contractorForms.filter((form) =>
+      ["send", "received", "approved", "rejected", "expired"].includes(
+        form.contractor_status
+      )
+    ).length;
+    const received_request = contractorForms.filter(
+      (form) => form.contractor_status === "received"
+    ).length;
+    const approved = contractorForms.filter(
+      (form) => form.contractor_status === "approved"
+    ).length;
+    const not_approved = contractorForms.filter(
+      (form) => form.contractor_status === "rejected"
+    ).length;
+    const expired = contractorForms.filter(
+      (form) => form.contractor_status === "expired"
+    ).length;
+    const consultant_pending = contractorForms.filter(
+        (form) => form.consultant_status === "pending"
+    ).length;
+    const consultant_received_from_contractor = contractorForms.filter(
+        (form) => form.consultant_status === "received_from_contractor"
+    ).length;
+    const consultant_send_to_contractor = contractorForms.filter(
+        (form) => form.consultant_status === "send_to_contractor"
+    ).length;
+    const consultant_received_from_re = contractorForms.filter(
+        (form) => form.consultant_status === "received_from_re"
+    ).length;
+    const inspector_okay = contractorForms.filter(
+        (form) => form.inspector_status === "okay"
+    ).length;
+    const inspector_not_okay = contractorForms.filter(
+        (form) => form.inspector_status === "not_okay"
+    ).length;
+    const inspector_pending = contractorForms.filter(
+        (form) => !form.inspector_status
+    ).length;
+    const inspector_total = inspector_okay + inspector_not_okay + inspector_pending;
+    const surveyor_okay = contractorForms.filter(
+        (form) => form.surveyor_status === "okay"
+    ).length;
+    const surveyor_not_okay = contractorForms.filter(
+        (form) => form.surveyor_status === "not_okay"
+    ).length;
+    const surveyor_pending = contractorForms.filter(
+        (form) => !form.surveyor_status
+    ).length;
+    const surveyor_total = surveyor_okay + surveyor_not_okay + surveyor_pending;
+    const me_okay = contractorForms.filter(
+        (form) => form.me_status === "okay"
+    ).length;
+    const me_not_okay = contractorForms.filter(
+        (form) => form.me_status === "not_okay"
+    ).length;
+    const me_pending = contractorForms.filter(
+        (form) => !form.me_status
+    ).length;
+    const me_total = me_okay + me_not_okay + me_pending;
+    const are_okay = contractorForms.filter(
+        (form) => form.are_status === "okay"
+    ).length;
+    const are_not_okay = contractorForms.filter(
+        (form) => form.are_status === "not_okay"
+    ).length;
+    const are_pending = contractorForms.filter(
+        (form) => !form.are_status
+    ).length;
+    const are_total = are_okay + are_not_okay + are_pending;
+    const re_approved = contractorForms.filter(
+        (form) => form.re_status === "approved"
+    ).length;
+    const re_not_approved = contractorForms.filter(
+        (form) => form.re_status === "not_approved"
+    ).length;
+    const re_pending = contractorForms.filter(
+        (form) => !form.re_status
+    ).length;
+    const re_total = re_approved + re_not_approved + re_pending;
+
+    //enum: ['received_from_contractor', 'pending','send_to_contractor','received_from_re'],
+    const kpiData = {
+      total_length,
+      constractor: {
+        total_request,
+        received_request,
+        approved,
+        not_approved,
+        expired,
+      },
+         consultant: {
+        consultant_pending,
+        consultant_received_from_contractor,
+        consultant_send_to_contractor,
+        consultant_received_from_re,
+        },
+      inspector: {
+        inspector_total,
+        inspector_okay,
+        inspector_not_okay,
+        inspector_pending,
+      },
+        surveyor: {
+        surveyor_total,
+        surveyor_okay,
+        surveyor_not_okay,
+        surveyor_pending,
+        },
+        me: {
+        me_total,
+        me_okay,
+        me_not_okay,
+        me_pending,
+        },
+        are: {
+        are_total,
+        are_okay,
+        are_not_okay,
+        are_pending,
+        },
+        re: {
+        re_total,
+        re_approved,
+        re_not_approved,
+        re_pending,
+        },  
+    };
+    
+    res
+      .status(200)
+      .json({ message: "Contractor KPIs Retrieved Successfully", kpiData });
+  } catch (err) {
+    res
+      .status(400)
+      .json({ message: "Error in Retrieving Contractor KPIs", err });
+  }
+};
+const createContractorForm = async (req, res) => {
+  try {
+    const contractorForm = req.body;
+    const newContractorForm = new ContractorForm(contractorForm);
+    await newContractorForm.save();
+    res
+      .status(201)
+      .json({
+        message: "Contractor Form Created Successfully",
+        newContractorForm,
+      });
+  } catch (err) {
+    res.status(400).json({ message: "Error in Creating Contractor Form", err });
+  }
+};
+
+const getContractorForms = async (req, res) => {
+  try {
+    const contractorForms = await ContractorForm.find();
+    res
+      .status(200)
+      .json({
+        message: "Contractor Forms Retrieved Successfully",
+        contractorForms,
+      });
+  } catch (err) {
+    res
+      .status(400)
+      .json({ message: "Error in Retrieving Contractor Forms", err });
+  }
+};
+
+const getContractorFormById = async (req, res) => {
+  try {
+    const contractorFormId = req.params.id;
+    const contractorForm = await ContractorForm.findById(contractorFormId);
+
+    if (!contractorForm) {
+      return res.status(404).json({ message: "Contractor Form not found" });
     }
-}
 
-const getContractorkpisByProject=async(req,res)=>{
-    try{
-        // Get project_id from query parameters (optional)
-        const { id } = req.params;
-        // Build filter object
-       
-        const contractorForms=await ContractorForm.find({project_id: id});
-        console.log(contractorForms);
-        // Get unique contractor names
-        const uniqueNames = [...new Set(contractorForms
-            .map(form => form.contractor_name)
-            .filter(name => name))];
-        
-        // Calculate statistics
-        const total_length = contractorForms.length;
-        console.log(total_length);
-        const total_request = contractorForms.filter(form => 
-            ['send', 'received', 'approved', 'rejected', 'expired'].includes(form.contractor_status)
-        ).length;
-        const received_request = contractorForms.filter(form => 
-            form.contractor_status === 'received'
-        ).length;
-        const approved = contractorForms.filter(form => 
-            form.contractor_status === 'approved'
-        ).length;
-        const not_approved = contractorForms.filter(form => 
-            form.contractor_status === 'rejected'
-        ).length;
-        const expired = contractorForms.filter(form => 
-            form.contractor_status === 'expired'
-        ).length;
-        
-        const kpiData = {
-            total_length,
-            total_request,
-            received_request,
-            approved,
-            not_approved,
-            expired
-        };
-        res.status(200).json({message:"Contractor KPIs Retrieved Successfully", kpiData});
-    }catch(err){
-        res.status(400).json({message:"Error in Retrieving Contractor KPIs",err});
-    }
-}
-const createContractorForm=async(req,res)=>{
-    try{
-      const contractorForm=req.body;
-        const newContractorForm=new ContractorForm(contractorForm);
-        await newContractorForm.save();
-        res.status(201).json({message:"Contractor Form Created Successfully",newContractorForm});
-    }catch(err){
-        res.status(400).json({message:"Error in Creating Contractor Form",err});
-    }
-}
+    res
+      .status(200)
+      .json({
+        message: "Contractor Form Retrieved Successfully",
+        contractorForm,
+      });
+  } catch (err) {
+    res
+      .status(400)
+      .json({ message: "Error in Retrieving Contractor Form", err });
+  }
+};
 
-const getContractorForms=async(req,res)=>{
-    try{
-        const contractorForms=await ContractorForm.find();
-        res.status(200).json({message:"Contractor Forms Retrieved Successfully",contractorForms});
-    }catch(err){
-        res.status(400).json({message:"Error in Retrieving Contractor Forms",err});
-    }
-}
+const updateContractorForm = async (req, res) => {
+  try {
+    const contractorFormId = req.params.id;
+    const updatedData = req.body;
 
-const getContractorFormById=async(req,res)=>{
-    try{
-        const contractorFormId=req.params.id;
-        const contractorForm=await ContractorForm.findById(contractorFormId);
-        
-        if(!contractorForm){
-            return res.status(404).json({message:"Contractor Form not found"});
-        }
-        
-        res.status(200).json({message:"Contractor Form Retrieved Successfully",contractorForm});
-    }catch(err){
-        res.status(400).json({message:"Error in Retrieving Contractor Form",err});
-    }
-}
+    const updatedContractorForm = await ContractorForm.findByIdAndUpdate(
+      contractorFormId,
+      updatedData,
+      { new: true }
+    );
 
-const updateContractorForm=async(req,res)=>{
-    try{
-        const contractorFormId=req.params.id;
-        const updatedData=req.body;
-        
-        const updatedContractorForm=await ContractorForm.findByIdAndUpdate(
-            contractorFormId,
-            updatedData,
-            {new:true}
-        );
-        
-        if(!updatedContractorForm){
-            return res.status(404).json({message:"Contractor Form not found"});
-        }
-        
-        res.status(200).json({message:"Contractor Form Updated Successfully",updatedContractorForm});
-    }catch(err){
-        res.status(400).json({message:"Error in Updating Contractor Form",err});
+    if (!updatedContractorForm) {
+      return res.status(404).json({ message: "Contractor Form not found" });
     }
-}
 
-const deleteContractorForm=async(req,res)=>{
-    try{
-        const contractorFormId=req.params.id;
-        const deletedContractorForm=await ContractorForm.findByIdAndDelete(contractorFormId);
-        
-        if(!deletedContractorForm){
-            return res.status(404).json({message:"Contractor Form not found"});
-        }
-        
-        res.status(200).json({message:"Contractor Form Deleted Successfully"});
-    }catch(err){
-        res.status(400).json({message:"Error in Deleting Contractor Form",err});
+    res
+      .status(200)
+      .json({
+        message: "Contractor Form Updated Successfully",
+        updatedContractorForm,
+      });
+  } catch (err) {
+    res.status(400).json({ message: "Error in Updating Contractor Form", err });
+  }
+};
+
+const deleteContractorForm = async (req, res) => {
+  try {
+    const contractorFormId = req.params.id;
+    const deletedContractorForm = await ContractorForm.findByIdAndDelete(
+      contractorFormId
+    );
+
+    if (!deletedContractorForm) {
+      return res.status(404).json({ message: "Contractor Form not found" });
     }
-}
 
-module.exports={
-    getContractorkpis,
-    getContractorkpisByProject,
-    createContractorForm,
-    getContractorForms,
-    getContractorFormById,
-    updateContractorForm,
-    deleteContractorForm
+    res.status(200).json({ message: "Contractor Form Deleted Successfully" });
+  } catch (err) {
+    res.status(400).json({ message: "Error in Deleting Contractor Form", err });
+  }
+};
+
+module.exports = {
+  getContractorkpis,
+  getContractorkpisByProject,
+  createContractorForm,
+  getContractorForms,
+  getContractorFormById,
+  updateContractorForm,
+  deleteContractorForm,
 };
