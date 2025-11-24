@@ -59,8 +59,8 @@ const contractorFormSchema=new mongoose.Schema({
     },
     contractor_status: {
         type: String,
-        enum: ['send', 'received', 'approved','rejected','expired'],
-        default: 'empty',
+        enum: ['pending', 'received', 'approved','rejected','expired'],
+        default: 'pending',
     },
     contractor_submit_date: {
         type: String,
@@ -78,7 +78,7 @@ const contractorFormSchema=new mongoose.Schema({
     },
     consultant_status: {
         type: String,
-        enum: ['received_from_contractor', 'pending','send_to_contractor','received_from_re'],
+        enum: ['received_from_contractor', 'pending','send_to_contractor','received_from_re','expired'],
         default: 'pending',
     }, 
     consultant_update_date: {
@@ -101,7 +101,7 @@ const contractorFormSchema=new mongoose.Schema({
     },
     inspector_status: {
         type: String,
-        enum: ['okay', 'not_okay'],
+        enum: ['okay', 'not_okay','expired'],
         // required: false,
     },
     inspector_update_date: {
@@ -123,7 +123,7 @@ const contractorFormSchema=new mongoose.Schema({
     },
     surveyor_status: {
         type: String,
-        enum: ['okay', 'not_okay'],
+        enum: ['okay', 'not_okay','expired'],
         // required: false,
     },
     surveyor_update_date: {
@@ -146,7 +146,7 @@ const contractorFormSchema=new mongoose.Schema({
     },
     me_status: {
         type: String,
-        enum: ['okay', 'not_okay'],
+        enum: ['okay', 'not_okay','expired'],
       //  required: false,
     },
     me_update_date: {
@@ -169,7 +169,7 @@ const contractorFormSchema=new mongoose.Schema({
     },
     are_status: {
         type: String,
-        enum: ['okay', 'not_okay'],
+        enum: ['okay', 'not_okay','expired'],
         required: false,
     },
     are_update_date: {
@@ -192,7 +192,7 @@ const contractorFormSchema=new mongoose.Schema({
     },
     re_status: {
         type: String,
-        enum: ['approved', 'not_approved'],
+        enum: ['approved', 'not_approved','expired'],
         required: false,
     },
     re_update_date: {

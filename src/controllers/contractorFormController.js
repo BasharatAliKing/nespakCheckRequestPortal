@@ -15,9 +15,12 @@ const getContractorkpis = async (req, res) => {
     // Calculate statistics
     const total_length = contractorForms.length;
      const total_request = contractorForms.filter((form) =>
-      ["send", "received", "approved", "rejected", "expired"].includes(
+      ["pending", "received", "approved", "rejected", "expired"].includes(
         form.contractor_status
       )
+    ).length;
+    const pending_request = contractorForms.filter(
+      (form)=>form.contractor_status ==='pending'
     ).length;
     const received_request = contractorForms.filter(
       (form) => form.contractor_status === "received"
@@ -101,6 +104,7 @@ const getContractorkpis = async (req, res) => {
       constractor: {
         total_request,
         received_request,
+        pending_request,
         approved,
         not_approved,
         expired,
@@ -312,6 +316,9 @@ const getContractorkpisByProject = async (req, res) => {
 const createContractorForm = async (req, res) => {
   try {
     const contractorForm = req.body;
+    if (!contractorForm.contractor_status || contractorForm.contractor_status.trim() === "") {
+    contractorForm.contractor_status = "pending";   // default
+}
     const newContractorForm = new ContractorForm(contractorForm);
     await newContractorForm.save();
     res
