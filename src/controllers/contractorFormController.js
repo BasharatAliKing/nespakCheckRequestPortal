@@ -1,5 +1,36 @@
 const express = require("express");
 const ContractorForm = require("../models/contractorFormModel");
+const cron = require("node-cron");
+// After 24 Hourse By default when submitted Contractor Status Will be Changed if any empty
+cron.schedule("* * * * *", async () => {
+    const now = new Date();
+    const hours24 = 24 * 60 * 60 * 1000;
+   // const hours24 = 1 * 60 * 1000;
+
+    // Status fields to check
+    const pendingStatuses = [
+        "pending",
+        "", // empty if needed
+    ];
+    const forms = await ContractorForm.find({
+        $or: [
+            { contractor_status: { $in: pendingStatuses } },
+            { consultant_status: { $in: pendingStatuses } },
+            { inspector_status: { $in: pendingStatuses } },
+            { surveyor_status: { $in: pendingStatuses } },
+            { me_status: { $in: pendingStatuses } },
+            { are_status: { $in: pendingStatuses } },
+            { re_status: { $in: pendingStatuses } },
+        ],
+        createdAt: { $lte: new Date(now - hours24) }
+    });
+
+    for (let form of forms) {
+        form.contractor_status = "expired"; // change status
+        await form.save();
+    }
+   // console.log("24-hour expiration job executed");
+});
 
 const getContractorkpis = async (req, res) => {
   try {
@@ -156,7 +187,6 @@ const getContractorkpis = async (req, res) => {
       .json({ message: "Error in Retrieving Contractor KPIs", err });
   }
 };
-
 const getContractorkpisByProject = async (req, res) => {
   try {
     // Get project_id from query parameters (optional)
