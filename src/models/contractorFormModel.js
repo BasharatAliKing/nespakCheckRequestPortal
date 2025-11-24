@@ -203,9 +203,14 @@ const contractorFormSchema=new mongoose.Schema({
         type: String,
         required: false,
     },
+    // status:{
+    //     type:String,
+    //     enum:['expired','in_progress'],
+    //     default:'',
+    // }
 }, {
     timestamps: true,
-});
+});  //  schema end
 
 // model here
 const ContractorForm=mongoose.model("ContractorForm",contractorFormSchema);

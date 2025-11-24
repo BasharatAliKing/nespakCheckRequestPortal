@@ -27,6 +27,12 @@ cron.schedule("* * * * *", async () => {
 
     for (let form of forms) {
         form.contractor_status = "expired"; // change status
+        // form.consultant_status="expired",
+        // form.inspector_status="expired",
+        // form.surveyor_status="expired",
+        // form.me_status="expired",
+        // form.are_status="expired",
+        // form.re_status="expired",
         await form.save();
     }
    // console.log("24-hour expiration job executed");
