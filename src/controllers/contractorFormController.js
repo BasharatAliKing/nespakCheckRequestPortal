@@ -365,22 +365,14 @@ const createContractorForm = async (req, res) => {
       newContractorForm,
     });
 
-  } catch (err) {
-
-    // If it's a Mongoose validation error, send clear details
-    if (err.name === "ValidationError") {
-      const errors = Object.values(err.errors).map(e => e.message);
-      return res.status(400).json({
-        message: errors,
-      //  errors
-      });
-    }
-    // Other errors
-    return res.status(400).json({
-      message: "Error in Creating Contractor Form",
-      error: err.message,
-    });
+} catch (err) {
+  if (err.name === "ValidationError") {
+    const firstError = Object.values(err.errors)[0].message;  // get only first error
+    return res.status(400).json({ message: firstError });
   }
+
+  res.status(400).json({ message: "Error in Creating Contractor Form" });
+}
 };
 
 const getContractorForms = async (req, res) => {
