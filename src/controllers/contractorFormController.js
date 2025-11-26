@@ -213,9 +213,12 @@ const getContractorkpisByProject = async (req, res) => {
     const total_length = contractorForms.length;
     console.log(total_length);
     const total_request = contractorForms.filter((form) =>
-      ["send", "received", "approved", "rejected", "expired"].includes(
+      ["pending", "received", "approved", "rejected", "expired"].includes(
         form.contractor_status
       )
+    ).length;
+     const pending_request = contractorForms.filter(
+      (form)=>form.contractor_status ==='pending'
     ).length;
     const received_request = contractorForms.filter(
       (form) => form.contractor_status === "received"
@@ -298,6 +301,7 @@ const getContractorkpisByProject = async (req, res) => {
       constractor: {
         total_request,
         received_request,
+        pending_request,
         approved,
         not_approved,
         expired,

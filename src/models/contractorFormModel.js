@@ -203,7 +203,17 @@ drawing_ref_no: {
 }, {
     timestamps: true,
 }); //  schema end
-
+// Pre-save hook to convert timestamps to Pakistan Standard Time (UTC+5)
+contractorFormSchema.pre('save', function(next) {
+    const offsetMs = 5 * 60 * 60 * 1000; // PKT offset in milliseconds
+    if (this.createdAt) {
+        this.createdAt = new Date(this.createdAt.getTime() + offsetMs);
+    }
+    if (this.updatedAt) {
+        this.updatedAt = new Date(this.updatedAt.getTime() + offsetMs);
+    }
+    next();
+});
 // model here
 const ContractorForm=mongoose.model("ContractorForm",contractorFormSchema);
 
