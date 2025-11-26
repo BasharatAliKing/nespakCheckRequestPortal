@@ -18,6 +18,8 @@ router.get('/main-form/contractorkpis',authMiddleware,getContractorkpis);
 router.get('/main-form/contractorkpis/:id',authMiddleware,getContractorkpisByProject);
 router.get('/main-form/status/:status',authMiddleware,getContractorFormsByStatus);
 router.get('/main-form/:projectId/:status',authMiddleware,getContractorFormsByProjectAndStatus);
+// routes of status consultant 
+
 // All routes require authentication
 router.post('/main-form',authMiddleware,createContractorForm);
 router.get('/main-form',authMiddleware,getContractorForms);

@@ -62,7 +62,6 @@ drawing_ref_no: {
         type: String,
        // required: false,
     },
-    
     // Consultant fields
     consultant_name: {
         type: String,
