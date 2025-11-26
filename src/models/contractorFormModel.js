@@ -2,55 +2,47 @@ const mongoose=require('mongoose');
 
 // schema here
 const contractorFormSchema=new mongoose.Schema({
-    project_id:{
-        type:String,
-        required:true,
-    },
-    rfi_no: {
-        type: String,
-        required: true,
-    },
-    date_of_rfi: {
-        type: Date,
-        required: true,
-    },
-    previously_requested: {
-        type: String,
-        enum: ['yes', 'no'],
-        required: true,
-    },
-    previous_rfi_no: {
-        type: String,
-        required: false,
-    },
-    date_of_inspection: {
-        type: Date,
-        required: true,
-    },
-    time_of_inspection: {
-        type: String,
-        required: true,
-    },
-    location: {
-        type: String,
-        required: true,
-    },
-    type_of_activity: {
-        type: String,
-        required: true,
-    },
-    bill_no:{
-        type: String,
-        required:true,
-    },
-    boq_item_no: {
-        type: String,
-        required: true,
-    },
-    drawing_ref_no: {
-        type: String,
-        required: true,
-    },
+   project_id: {
+  type: String,
+  required: [true, "project_id is required"],
+},
+rfi_no: {
+  type: String,
+  required: [true, "rfi_no is required"],
+},
+date_of_rfi: {
+  type: Date,
+  required: [true, "date_of_rfi is required"],
+},
+previously_requested: {
+  type: String,
+  enum: ['yes', 'no'],
+  required: [true, "previously_requested is required"],
+},
+date_of_inspection: {
+  type: Date,
+  required: [true, "date_of_inspection is required"],
+},
+time_of_inspection: {
+  type: String,
+  required: [true, "time_of_inspection is required"],
+},
+location: {
+  type: String,
+  required: [true, "location is required"],
+},
+bill_no: {
+  type: String,
+  required: [true, "bill_no is required"],
+},
+boq_item_no: {
+  type: String,
+  required: [true, "boq_item_no is required"],
+},
+drawing_ref_no: {
+  type: String,
+  required: [true, "drawing_ref_no is required"],
+},
     
     // Contractor fields
     contractor_name: {
@@ -210,7 +202,7 @@ const contractorFormSchema=new mongoose.Schema({
     // }
 }, {
     timestamps: true,
-});  //  schema end
+}); //  schema end
 
 // model here
 const ContractorForm=mongoose.model("ContractorForm",contractorFormSchema);

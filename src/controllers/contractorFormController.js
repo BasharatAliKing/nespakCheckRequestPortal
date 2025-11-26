@@ -352,19 +352,34 @@ const getContractorkpisByProject = async (req, res) => {
 const createContractorForm = async (req, res) => {
   try {
     const contractorForm = req.body;
+
     if (!contractorForm.contractor_status || contractorForm.contractor_status.trim() === "") {
-    contractorForm.contractor_status = "pending";   // default
-}
+      contractorForm.contractor_status = "pending";   // default
+    }
+
     const newContractorForm = new ContractorForm(contractorForm);
     await newContractorForm.save();
-    res
-      .status(201)
-      .json({
-        message: "Contractor Form Created Successfully",
-        newContractorForm,
-      });
+
+    return res.status(201).json({
+      message: "Contractor Form Created Successfully",
+      newContractorForm,
+    });
+
   } catch (err) {
-    res.status(400).json({ message: "Error in Creating Contractor Form", err });
+
+    // If it's a Mongoose validation error, send clear details
+    if (err.name === "ValidationError") {
+      const errors = Object.values(err.errors).map(e => e.message);
+      return res.status(400).json({
+        message: errors,
+      //  errors
+      });
+    }
+    // Other errors
+    return res.status(400).json({
+      message: "Error in Creating Contractor Form",
+      error: err.message,
+    });
   }
 };
 
