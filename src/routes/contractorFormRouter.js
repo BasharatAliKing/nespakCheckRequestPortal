@@ -3,6 +3,8 @@ const router=express.Router();
 const {
     getContractorkpis,
     getContractorkpisByProject,
+    getContractorFormsByStatus,
+    getContractorFormsByProjectAndStatus,
     createContractorForm,
     getContractorForms,
     getContractorFormById,
@@ -14,6 +16,8 @@ const authMiddleware=require('../middleware/authMiddleware');
 // KPI route must come before :id route to avoid conflicts
 router.get('/main-form/contractorkpis',authMiddleware,getContractorkpis);
 router.get('/main-form/contractorkpis/:id',authMiddleware,getContractorkpisByProject);
+router.get('/main-form/status/:status',authMiddleware,getContractorFormsByStatus);
+router.get('/main-form/:projectId/:status',authMiddleware,getContractorFormsByProjectAndStatus);
 // All routes require authentication
 router.post('/main-form',authMiddleware,createContractorForm);
 router.get('/main-form',authMiddleware,getContractorForms);

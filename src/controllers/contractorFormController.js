@@ -37,7 +37,7 @@ cron.schedule("* * * * *", async () => {
     }
    // console.log("24-hour expiration job executed");
 });
-
+// get Contractor KPIs
 const getContractorkpis = async (req, res) => {
   try {
     const contractorForms = await ContractorForm.find();
@@ -193,6 +193,7 @@ const getContractorkpis = async (req, res) => {
       .json({ message: "Error in Retrieving Contractor KPIs", err });
   }
 };
+// get Contractor KPIs by Project ID
 const getContractorkpisByProject = async (req, res) => {
   try {
     // Get project_id from query parameters (optional)
@@ -353,6 +354,37 @@ const getContractorkpisByProject = async (req, res) => {
       .json({ message: "Error in Retrieving Contractor KPIs", err });
   }
 };
+// get List By get Status
+const getContractorFormsByStatus = async (req, res) => {
+  try {
+    const { status } = req.params;
+    const contractorForms = await ContractorForm.find({
+      contractor_status: status,
+    });
+    res.status(200).json({
+      message: "Contractor Forms Retrieved Successfully",
+      data:contractorForms,
+    });
+  } catch (err) {
+    res.status(400).json({ message: "Error in Retrieving Contractor Forms", err });
+  }
+};
+// get list by projectId and status
+const getContractorFormsByProjectAndStatus = async (req, res) => {
+  try {
+    const { projectId, status } = req.params;
+    const contractorForms = await ContractorForm.find({
+      project_id: projectId,
+      contractor_status: status,
+    });
+    res.status(200).json({
+      message: "Contractor Forms Retrieved Successfully",
+      data:contractorForms,
+    });
+  } catch (err) {
+    res.status(400).json({ message: "Error in Retrieving Contractor Forms", err });
+  }
+};
 const createContractorForm = async (req, res) => {
   try {
     const contractorForm = req.body;
@@ -378,7 +410,6 @@ const createContractorForm = async (req, res) => {
   res.status(400).json({ message: "Error in Creating Contractor Form" });
 }
 };
-
 const getContractorForms = async (req, res) => {
   try {
     const contractorForms = await ContractorForm.find();
@@ -463,6 +494,8 @@ const deleteContractorForm = async (req, res) => {
 module.exports = {
   getContractorkpis,
   getContractorkpisByProject,
+  getContractorFormsByStatus,
+  getContractorFormsByProjectAndStatus,
   createContractorForm,
   getContractorForms,
   getContractorFormById,
