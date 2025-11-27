@@ -357,16 +357,32 @@ const getContractorkpisByProject = async (req, res) => {
 // get List By get Status
 const getContractorFormsByStatus = async (req, res) => {
   try {
-    const { status } = req.params;
-  let contractorForms;
-
+    const {type,status } = req.params;
+     // Map "type" to actual DB field names
+    const allowedFields = {
+      contractor:  "contractor_status",
+      consultant: "consultant_status",
+      inspector: "inspector_status",
+      surveyor: "surveyor_status",
+      me:"me_status",
+      are: "are_status",
+      re: "re_status",
+    };
+     // Check if type is valid
+    const statusField = allowedFields[type];
+    if (!statusField) {
+      return res.status(400).json({
+        message: "Invalid status type. Allowed types: contractor, consultant, inspector, surveyor, re, are",
+      });
+    }
+    let contractorForms;
+    // If user wants ALL data
     if (status === "all") {
-      // return all
       contractorForms = await ContractorForm.find();
     } else {
-      // return filtered by status
+      // Filter based on selected status field
       contractorForms = await ContractorForm.find({
-        contractor_status: status,
+        [statusField]: status,
       });
     }
     res.status(200).json({
@@ -380,15 +396,32 @@ const getContractorFormsByStatus = async (req, res) => {
 // get list by projectId and status
 const getContractorFormsByProjectAndStatus = async (req, res) => {
   try {
-    const { projectId, status } = req.params;
+    const { projectId,type, status } = req.params;
+    const allowedFields = {
+      contractor:  "contractor_status",
+      consultant: "consultant_status",
+      inspector: "inspector_status",
+      surveyor: "surveyor_status",
+      me:"me_status",
+      are: "are_status",
+      re: "re_status",
+    };
+     // Check if type is valid
+    const statusField = allowedFields[type];
+    if (!statusField) {
+      return res.status(400).json({
+        message: "Invalid status type. Allowed types: contractor, consultant, inspector, surveyor, re, are",
+      });
+    }
     let contractorForms;
-    if(status==='all'){
-      contractorForms=await ContractorForm.find({project_id:projectId});
-    }else
-    {
-       contractorForms = await ContractorForm.find({
+    // If user wants ALL data
+    if (status === "all") {
+      contractorForms = await ContractorForm.find({ project_id: projectId });
+    } else {
+      // Filter based on selected status field
+      contractorForms = await ContractorForm.find({
         project_id: projectId,
-        contractor_status: status,
+        [statusField]: status,
       });
     }
     res.status(200).json({
