@@ -358,9 +358,17 @@ const getContractorkpisByProject = async (req, res) => {
 const getContractorFormsByStatus = async (req, res) => {
   try {
     const { status } = req.params;
-    const contractorForms = await ContractorForm.find({
-      contractor_status: status,
-    });
+  let contractorForms;
+
+    if (status === "all") {
+      // return all
+      contractorForms = await ContractorForm.find();
+    } else {
+      // return filtered by status
+      contractorForms = await ContractorForm.find({
+        contractor_status: status,
+      });
+    }
     res.status(200).json({
       message: "Contractor Forms Retrieved Successfully",
       data:contractorForms,
@@ -373,10 +381,16 @@ const getContractorFormsByStatus = async (req, res) => {
 const getContractorFormsByProjectAndStatus = async (req, res) => {
   try {
     const { projectId, status } = req.params;
-    const contractorForms = await ContractorForm.find({
-      project_id: projectId,
-      contractor_status: status,
-    });
+    let contractorForms;
+    if(status==='all'){
+      contractorForms=await ContractorForm.find({project_id:projectId});
+    }else
+    {
+       contractorForms = await ContractorForm.find({
+        project_id: projectId,
+        contractor_status: status,
+      });
+    }
     res.status(200).json({
       message: "Contractor Forms Retrieved Successfully",
       data:contractorForms,
