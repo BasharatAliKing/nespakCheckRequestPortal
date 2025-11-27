@@ -396,7 +396,7 @@ const getContractorFormsByStatus = async (req, res) => {
 // get list by projectId and status
 const getContractorFormsByProjectAndStatus = async (req, res) => {
   try {
-    const { projectId,type, status } = req.params;
+    const { projectId,type,status } = req.params;
     const allowedFields = {
       contractor:  "contractor_status",
       consultant: "consultant_status",
@@ -436,25 +436,20 @@ const getContractorFormsByProjectAndStatus = async (req, res) => {
 const createContractorForm = async (req, res) => {
   try {
     const contractorForm = req.body;
-
     if (!contractorForm.contractor_status || contractorForm.contractor_status.trim() === "") {
       contractorForm.contractor_status = "pending";   // default
     }
-
     const newContractorForm = new ContractorForm(contractorForm);
     await newContractorForm.save();
-
     return res.status(201).json({
       message: "Contractor Form Created Successfully",
       newContractorForm,
     });
-
 } catch (err) {
   if (err.name === "ValidationError") {
     const firstError = Object.values(err.errors)[0].message;  // get only first error
     return res.status(400).json({ message: firstError });
   }
-
   res.status(400).json({ message: "Error in Creating Contractor Form" });
 }
 };
