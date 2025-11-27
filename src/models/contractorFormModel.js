@@ -27,6 +27,10 @@ time_of_inspection: {
   type: String,
   required: [true, "time_of_inspection is required"],
 },
+type_of_activity:{
+  type:String,
+  required:[true,'Type of Activity is Required']
+},
 location: {
   type: String,
   required: [true, "location is required"],
