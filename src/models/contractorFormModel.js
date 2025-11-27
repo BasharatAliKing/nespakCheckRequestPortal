@@ -4,28 +4,28 @@ const mongoose=require('mongoose');
 const contractorFormSchema=new mongoose.Schema({
    project_id: {
   type: String,
-  required: [true, "project_id is required"],
+  required: [true, "Project Id is required"],
 },
 rfi_no: {
   type: String,
-  required: [true, "rfi_no is required"],
+  required: [true, "RFI No is required"],
 },
 date_of_rfi: {
   type: Date,
-  required: [true, "date_of_rfi is required"],
+  required: [true, "Date of RFI is required"],
 },
 previously_requested: {
   type: String,
   enum: ['yes', 'no'],
-  required: [true, "previously_requested is required"],
+  required: [true, "Previously Requested is required"],
 },
 date_of_inspection: {
   type: Date,
-  required: [true, "date_of_inspection is required"],
+  required: [true, "Date of Inspection is required"],
 },
 time_of_inspection: {
   type: String,
-  required: [true, "time_of_inspection is required"],
+  required: [true, "Time of Inspection is required"],
 },
 type_of_activity:{
   type:String,
@@ -33,19 +33,19 @@ type_of_activity:{
 },
 location: {
   type: String,
-  required: [true, "location is required"],
+  required: [true, "Location is required"],
 },
 bill_no: {
   type: String,
-  required: [true, "bill_no is required"],
+  required: [true, "Bill No is required"],
 },
 boq_item_no: {
   type: String,
-  required: [true, "boq_item_no is required"],
+  required: [true, "BOQ Item No is required"],
 },
 drawing_ref_no: {
   type: String,
-  required: [true, "drawing_ref_no is required"],
+  required: [true, "Drawing Ref No is required"],
 },
     
     // Contractor fields
