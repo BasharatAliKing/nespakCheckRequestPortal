@@ -88,6 +88,9 @@ const getContractorkpis = async (req, res) => {
     const consultant_received_from_re = contractorForms.filter(
         (form) => form.consultant_status === "received_from_re"
     ).length;
+    const consultant_expired = contractorForms.filter(
+        (form) => form.consultant_status === "expired"
+    ).length;
     const inspector_okay = contractorForms.filter(
         (form) => form.inspector_status === "okay"
     ).length;
@@ -95,9 +98,12 @@ const getContractorkpis = async (req, res) => {
         (form) => form.inspector_status === "not_okay"
     ).length;
     const inspector_pending = contractorForms.filter(
-        (form) => !form.inspector_status
+        (form) => form.consultant_status === 'received_from_contractor'
     ).length;
     const inspector_total = inspector_okay + inspector_not_okay + inspector_pending;
+    const inspector_expired = contractorForms.filter(
+        (form) => form.inspector_status === "expired"
+    ).length;
     const surveyor_okay = contractorForms.filter(
         (form) => form.surveyor_status === "okay"
     ).length;
@@ -105,9 +111,12 @@ const getContractorkpis = async (req, res) => {
         (form) => form.surveyor_status === "not_okay"
     ).length;
     const surveyor_pending = contractorForms.filter(
-        (form) => !form.surveyor_status
+        (form) => form.inspector_status ==='okay' && form.inspector_status==='not_okay' && form.inspector_status=== 'expired'
     ).length;
     const surveyor_total = surveyor_okay + surveyor_not_okay + surveyor_pending;
+    const surveyor_expired = contractorForms.filter(
+        (form) => form.surveyor_status === "expired"
+    ).length;
     const me_okay = contractorForms.filter(
         (form) => form.me_status === "okay"
     ).length;
@@ -115,9 +124,12 @@ const getContractorkpis = async (req, res) => {
         (form) => form.me_status === "not_okay"
     ).length;
     const me_pending = contractorForms.filter(
-        (form) => !form.me_status
+        (form) => form.surveyor_status ==='okay' && form.surveyor_status==='not_okay' && form.surveyor_status=== 'expired'
     ).length;
     const me_total = me_okay + me_not_okay + me_pending;
+    const me_expired = contractorForms.filter(
+        (form) => form.me_status === "expired"
+    ).length;
     const are_okay = contractorForms.filter(
         (form) => form.are_status === "okay"
     ).length;
@@ -125,9 +137,12 @@ const getContractorkpis = async (req, res) => {
         (form) => form.are_status === "not_okay"
     ).length;
     const are_pending = contractorForms.filter(
-        (form) => !form.are_status
+        (form) => form.me_status ==='okay' && form.me_status==='not_okay' && form.me_status=== 'expired'
     ).length;
     const are_total = are_okay + are_not_okay + are_pending;
+    const are_expired = contractorForms.filter(
+        (form) => form.are_status === "expired"
+    ).length;
     const re_approved = contractorForms.filter(
         (form) => form.re_status === "approved"
     ).length;
@@ -135,10 +150,12 @@ const getContractorkpis = async (req, res) => {
         (form) => form.re_status === "not_approved"
     ).length;
     const re_pending = contractorForms.filter(
-        (form) => !form.re_status
+        (form) => form.are_status ==='okay' && form.are_status==='not_okay' && form.are_status=== 'expired'
     ).length;
     const re_total = re_approved + re_not_approved + re_pending;
-
+    const re_expired = contractorForms.filter(
+        (form) => form.re_status === "expired"
+    ).length;
     //enum: ['received_from_contractor', 'pending','send_to_contractor','received_from_re'],
     const kpiData = {
       total_length,
@@ -156,36 +173,42 @@ const getContractorkpis = async (req, res) => {
         consultant_received_from_contractor,
         consultant_send_to_contractor,
         consultant_received_from_re,
+        consultant_expired,
         },
       inspector: {
         inspector_total,
         inspector_okay,
         inspector_not_okay,
         inspector_pending,
+        inspector_expired
       },
         surveyor: {
         surveyor_total,
         surveyor_okay,
         surveyor_not_okay,
         surveyor_pending,
+        surveyor_expired
         },
         me: {
         me_total,
         me_okay,
         me_not_okay,
         me_pending,
+        me_expired
         },
         are: {
         are_total,
         are_okay,
         are_not_okay,
         are_pending,
+        are_expired
         },
         re: {
         re_total,
         re_approved,
         re_not_approved,
         re_pending,
+        re_expired
         },  
     };
 
