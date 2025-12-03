@@ -103,7 +103,7 @@ const contractorFormSchema = new mongoose.Schema(
     },
     inspector_status: {
       type: String,
-      enum: ["okay", "not_okay", "expired"],
+      enum: ["okay","pending", "not_okay", "expired"],
       // required: false,
     },
     inspector_update_date: {
@@ -125,7 +125,7 @@ const contractorFormSchema = new mongoose.Schema(
     },
     surveyor_status: {
       type: String,
-      enum: ["okay", "not_okay", "expired"],
+      enum: ["okay","pending", "not_okay", "expired"],
       // required: false,
     },
     surveyor_update_date: {
@@ -148,7 +148,7 @@ const contractorFormSchema = new mongoose.Schema(
     },
     me_status: {
       type: String,
-      enum: ["okay", "not_okay", "expired"],
+      enum: ["okay","pending", "not_okay", "expired"],
       //  required: false,
     },
     me_update_date: {
@@ -171,7 +171,7 @@ const contractorFormSchema = new mongoose.Schema(
     },
     are_status: {
       type: String,
-      enum: ["okay", "not_okay", "expired"],
+      enum: ["okay","pending", "not_okay", "expired"],
       required: false,
     },
     are_update_date: {
@@ -194,7 +194,7 @@ const contractorFormSchema = new mongoose.Schema(
     },
     re_status: {
       type: String,
-     enum: ["okay", "not_okay", "expired"],
+     enum: ["okay","pending", "not_okay", "expired"],
       required: false,
     },
     re_update_date: {

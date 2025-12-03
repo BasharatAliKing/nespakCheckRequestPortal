@@ -98,7 +98,7 @@ const getContractorkpis = async (req, res) => {
         (form) => form.inspector_status === "not_okay"
     ).length;
     const inspector_pending = contractorForms.filter(
-        (form) => form.consultant_status === 'received_from_contractor'
+        (form) => form.inspector_status === 'pending'
     ).length;
     const inspector_total = inspector_okay + inspector_not_okay + inspector_pending;
     const inspector_expired = contractorForms.filter(
@@ -111,7 +111,7 @@ const getContractorkpis = async (req, res) => {
         (form) => form.surveyor_status === "not_okay"
     ).length;
     const surveyor_pending = contractorForms.filter(
-        (form) => form.inspector_status ==='okay' && form.inspector_status==='not_okay' && form.inspector_status=== 'expired'
+        (form) => form.surveyor_status === 'pending'
     ).length;
     const surveyor_total = surveyor_okay + surveyor_not_okay + surveyor_pending;
     const surveyor_expired = contractorForms.filter(
@@ -124,7 +124,7 @@ const getContractorkpis = async (req, res) => {
         (form) => form.me_status === "not_okay"
     ).length;
     const me_pending = contractorForms.filter(
-        (form) => form.surveyor_status ==='okay' && form.surveyor_status==='not_okay' && form.surveyor_status=== 'expired'
+        (form) => form.me_status === 'pending'
     ).length;
     const me_total = me_okay + me_not_okay + me_pending;
     const me_expired = contractorForms.filter(
@@ -137,7 +137,7 @@ const getContractorkpis = async (req, res) => {
         (form) => form.are_status === "not_okay"
     ).length;
     const are_pending = contractorForms.filter(
-        (form) => form.me_status ==='okay' && form.me_status==='not_okay' && form.me_status=== 'expired'
+        (form) => form.are_status === 'pending'
     ).length;
     const are_total = are_okay + are_not_okay + are_pending;
     const are_expired = contractorForms.filter(
@@ -150,7 +150,7 @@ const getContractorkpis = async (req, res) => {
         (form) => form.re_status === "not_approved"
     ).length;
     const re_pending = contractorForms.filter(
-        (form) => form.are_status ==='okay' && form.are_status==='not_okay' && form.are_status=== 'expired'
+        (form) => form.re_status === 'pending'
     ).length;
     const re_total = re_approved + re_not_approved + re_pending;
     const re_expired = contractorForms.filter(
@@ -227,7 +227,6 @@ const getContractorkpisByProject = async (req, res) => {
     // Get project_id from query parameters (optional)
     const { id } = req.params;
     // Build filter object
-
     const contractorForms = await ContractorForm.find({ project_id: id });
     console.log(contractorForms);
     // Get unique contractor names
@@ -391,42 +390,72 @@ const getContractorkpisByProject = async (req, res) => {
 // get List By get Status
 const getContractorFormsByStatus = async (req, res) => {
   try {
-    const {type,status } = req.params;
-     // Map "type" to actual DB field names
+    const { type, status } = req.params;
+
+    // Map "type" to status fields
     const allowedFields = {
-      contractor:  "contractor_status",
+      contractor: "contractor_status",
       consultant: "consultant_status",
       inspector: "inspector_status",
       surveyor: "surveyor_status",
-      me:"me_status",
+      me: "me_status",
       are: "are_status",
       re: "re_status",
     };
-     // Check if type is valid
+
     const statusField = allowedFields[type];
     if (!statusField) {
       return res.status(400).json({
-        message: "Invalid status type. Allowed types: contractor, consultant, inspector, surveyor, re, are",
+        message:
+          "Invalid status type. Allowed types: contractor, consultant, inspector, surveyor, re, are",
       });
     }
+
+    let allowedStatuses = [];
+
+    // Define allowed groups based on model enums
+    const statusGroups = {
+      contractor: ["approved", "rejected", "expired", "received"],
+      // contractor has different values
+      inspector: ["okay", "not_okay", "expired"],
+      surveyor: ["okay", "not_okay", "expired"],
+      me: ["okay", "pending", "not_okay", "expired"],
+      are: ["okay", "pending", "not_okay", "expired"],
+      re: ["okay", "pending", "not_okay", "expired"],
+      consultant: [
+        "received_from_contractor",
+        "send_to_contractor",
+        "received_from_re",
+        "expired"
+      ],
+    };
+
+    allowedStatuses = statusGroups[type];
+
     let contractorForms;
-    // If user wants ALL data
+
     if (status === "all") {
-      contractorForms = await ContractorForm.find();
+      // Return only allowed statuses for the selected type
+      contractorForms = await ContractorForm.find({
+        [statusField]: { $in: allowedStatuses },
+      });
     } else {
-      // Filter based on selected status field
       contractorForms = await ContractorForm.find({
         [statusField]: status,
       });
     }
+
     res.status(200).json({
-      message: "Contractor Forms Retrieved Successfully",
-      data:contractorForms,
+      message: `${type} data retrieved successfully`,
+      data: contractorForms,
     });
   } catch (err) {
-    res.status(400).json({ message: "Error in Retrieving Contractor Forms", err });
+    res
+      .status(400)
+      .json({ message: "Error retrieving contractor forms", err });
   }
 };
+
 // get list by projectId and status
 const getContractorFormsByProjectAndStatus = async (req, res) => {
   try {
@@ -539,7 +568,6 @@ const updateContractorForm = async (req, res) => {
     if (!updatedContractorForm) {
       return res.status(404).json({ message: "Contractor Form not found" });
     }
-
     res
       .status(200)
       .json({
