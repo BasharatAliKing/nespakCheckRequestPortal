@@ -194,7 +194,7 @@ const contractorFormSchema = new mongoose.Schema(
     },
     re_status: {
       type: String,
-      enum: ["approved", "not_approved", "expired"],
+     enum: ["okay", "not_okay", "expired"],
       required: false,
     },
     re_update_date: {
