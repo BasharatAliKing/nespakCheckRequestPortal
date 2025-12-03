@@ -284,7 +284,7 @@ const getContractorkpisByProject = async (req, res) => {
         (form) => form.inspector_status === "not_okay"
     ).length;
     const inspector_pending = contractorForms.filter(
-        (form) => !form.inspector_status
+        (form) => form.inspector_status === 'pending'
     ).length;
     const inspector_total = inspector_okay + inspector_not_okay + inspector_pending;
     const surveyor_okay = contractorForms.filter(
@@ -294,7 +294,7 @@ const getContractorkpisByProject = async (req, res) => {
         (form) => form.surveyor_status === "not_okay"
     ).length;
     const surveyor_pending = contractorForms.filter(
-        (form) => !form.surveyor_status
+        (form) => form.surveyor_status === 'pending'
     ).length;
     const surveyor_total = surveyor_okay + surveyor_not_okay + surveyor_pending;
     const me_okay = contractorForms.filter(
@@ -304,7 +304,7 @@ const getContractorkpisByProject = async (req, res) => {
         (form) => form.me_status === "not_okay"
     ).length;
     const me_pending = contractorForms.filter(
-        (form) => !form.me_status
+        (form) => form.me_status === 'pending'
     ).length;
     const me_total = me_okay + me_not_okay + me_pending;
     const are_okay = contractorForms.filter(
@@ -314,7 +314,7 @@ const getContractorkpisByProject = async (req, res) => {
         (form) => form.are_status === "not_okay"
     ).length;
     const are_pending = contractorForms.filter(
-        (form) => !form.are_status
+        (form) => form.are_status === 'pending'
     ).length;
     const are_total = are_okay + are_not_okay + are_pending;
     const re_approved = contractorForms.filter(
@@ -324,7 +324,7 @@ const getContractorkpisByProject = async (req, res) => {
         (form) => form.re_status === "not_approved"
     ).length;
     const re_pending = contractorForms.filter(
-        (form) => !form.re_status
+        (form) => form.re_status === 'pending'
     ).length;
     const re_total = re_approved + re_not_approved + re_pending;
 
