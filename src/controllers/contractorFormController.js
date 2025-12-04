@@ -449,6 +449,7 @@ const getContractorFormsByStatus = async (req, res) => {
         "received_from_contractor",
         "send_to_contractor",
         "received_from_re",
+        'pending',
         "expired"
       ],
     };
