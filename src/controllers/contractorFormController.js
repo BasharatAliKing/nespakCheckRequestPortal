@@ -414,7 +414,6 @@ const getContractorkpisByProject = async (req, res) => {
 const getContractorFormsByStatus = async (req, res) => {
   try {
     const { type, status } = req.params;
-
     // Map "type" to status fields
     const allowedFields = {
       contractor: "contractor_status",
@@ -440,11 +439,11 @@ const getContractorFormsByStatus = async (req, res) => {
     const statusGroups = {
       contractor: ["approved", "rejected", "expired", "received"],
       // contractor has different values
-      inspector: ["okay", "not_okay", "expired"],
-      surveyor: ["okay", "not_okay", "expired"],
-      me: ["okay", "pending", "not_okay", "expired"],
-      are: ["okay", "pending", "not_okay", "expired"],
-      re: ["okay", "pending", "not_okay", "expired"],
+      inspector: ["okay", "not_okay",'pending', "expired"],
+      surveyor: ["okay", "not_okay","pending", "expired"],
+      me: ["okay", "pending", "not_okay","pending", "expired"],
+      are: ["okay", "pending", "not_okay","pending" ,"expired"],
+      re: ["okay", "pending", "not_okay","pending", "expired"],
       consultant: [
         "received_from_contractor",
         "send_to_contractor",
