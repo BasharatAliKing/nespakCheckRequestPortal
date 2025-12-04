@@ -72,7 +72,7 @@ const getContractorkpis = async (req, res) => {
       (form) => form.contractor_status === "expired"
     ).length;
     const consultant_total=contractorForms.filter((form)=>{
-        return ["received_from_contractor", "pending","send_to_contractor","received_from_re"].includes(
+        return ["received_from_contractor", "pending","send_to_contractor","received_from_re", 'expired'].includes(
             form.consultant_status
         );
     }).length;
