@@ -20,6 +20,9 @@ const contractorFormSchema = new mongoose.Schema(
       enum: ["yes", "no"],
       required: [true, "Previously Requested is required"],
     },
+    previous_rfi_no:{
+      type:String,
+    },
     date_of_inspection: {
       type: Date,
       required: [true, "Date of Inspection is required"],
