@@ -205,7 +205,7 @@ const contractorFormSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
-    cons_stat:{
+    cons_stat_status:{
       type:String,
       enum:["pending","send_to_contractor","received_from_re","expired"],
     },
