@@ -441,9 +441,9 @@ const getContractorFormsByStatus = async (req, res) => {
       // contractor has different values
       inspector: ["okay", "not_okay",'pending', "expired"],
       surveyor: ["okay", "not_okay","pending", "expired"],
-      me: ["okay", "pending", "not_okay","pending", "expired"],
-      are: ["okay", "pending", "not_okay","pending" ,"expired"],
-      re: ["okay", "pending", "not_okay","pending", "expired"],
+      me: ["okay", "pending", "not_okay", "expired"],
+      are: ["okay", "pending", "not_okay" ,"expired"],
+      re: ["okay", "pending", "not_okay", "expired"],
       consultant: [
         "received_from_contractor",
         "send_to_contractor",

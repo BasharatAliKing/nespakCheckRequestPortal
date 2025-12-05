@@ -205,11 +205,32 @@ const contractorFormSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
-    // status:{
-    //     type:String,
-    //     enum:['expired','in_progress'],
-    //     default:'',
-    // }
+    cons_stat:{
+      type:String,
+      enum:["pending","send_to_contractor","received_from_re","expired"],
+    },
+    cons_stat_name:{
+      type:String,
+    },
+    cons_stat_date:{
+      type:String,
+    },
+    cons_stat_time:{
+      type:String,
+    },
+    cont_rec_status:{
+      type:String,
+      enum:["pending","received","approved","rejected","expired"],
+    },
+    cont_rec_name:{
+      type:String,
+    },
+    cont_rec_date:{
+      type:String,
+    },
+    cont_rec_time:{
+      type:String,
+    },
   },
   {
     timestamps: true,
