@@ -51,8 +51,23 @@ const contractorFormSchema = new mongoose.Schema(
       type: String,
       required: [true, "Drawing Ref No is required"],
     },
-
+    
     // Contractor fields
+    selected_inspector:{
+      type:String,
+    },
+    selected_surveyor:{
+      type:String,
+    },
+    selected_me:{
+      type:String,
+    },
+    selected_are:{
+      type:String,
+    },
+    selected_re:{
+      type:String,
+    },
     contractor_name: {
       type: String,
       //  required: true,

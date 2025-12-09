@@ -9,6 +9,16 @@ const generateToken = (userId) => {
         expiresIn: '30d',
     });
 };
+// get User By role
+const getUserByRole=async(req,res)=>{
+    try{
+         const role=req.params.role;
+         const users=await User.find({role});
+         res.status(200).json({message:"Users retrieved successfully", users});
+    }catch(err){
+        res.status(400).json({message:"Error in rettieving user by role",err});
+    }
+}
 // Signup
 const signup = async (req, res) => {
     try {
@@ -161,6 +171,7 @@ const deleteUser = async (req, res) => {
 };
 
 module.exports = {
+    getUserByRole,
     signup,
     login,
     getUsers,
