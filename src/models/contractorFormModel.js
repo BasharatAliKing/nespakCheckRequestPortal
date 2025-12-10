@@ -51,7 +51,19 @@ const contractorFormSchema = new mongoose.Schema(
       type: String,
       required: [true, "Drawing Ref No is required"],
     },
-    
+    contractor_status: {
+      type: String,
+      enum: ["pending", "received", "approved", "rejected", "expired", "revert"],
+      default: "pending",
+    },
+    contractor_submit_date: {
+      type: String,
+      // required: false,
+    },
+    contractor_submit_time: {
+      type: String,
+      // required: false,
+    },
     // Contractor fields
     selected_inspector:{
       type:String,
@@ -72,19 +84,6 @@ const contractorFormSchema = new mongoose.Schema(
       type: String,
       //  required: true,
     },
-    contractor_status: {
-      type: String,
-      enum: ["pending", "received", "approved", "rejected", "expired"],
-      default: "pending",
-    },
-    contractor_submit_date: {
-      type: String,
-      // required: false,
-    },
-    contractor_submit_time: {
-      type: String,
-      // required: false,
-    },
     // Consultant fields
     consultant_name: {
       type: String,
@@ -100,6 +99,9 @@ const contractorFormSchema = new mongoose.Schema(
         "expired",
       ],
       default: "pending",
+    },
+    consultant_remarks:{
+      type:String,
     },
     consultant_update_date: {
       type: String,
