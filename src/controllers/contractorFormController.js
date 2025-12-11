@@ -4,7 +4,8 @@ const cron = require("node-cron");
 // After 24 Hourse By default when submitted Contractor Status Will be Changed if any empty
 cron.schedule("* * * * *", async () => {
     const now = new Date();
-    const hours24 = 24 * 60 * 60 * 1000;
+   // const hours24 = 24 * 60 * 60 * 1000;
+   const hours24 = 5 * 60 * 1000; // 5-minute timer
     const pendingStatuses = ["pending", ""]; 
     // Fetch only forms where consultant has updated (accepted/processed)
     const forms = await ContractorForm.find({
@@ -18,13 +19,11 @@ cron.schedule("* * * * *", async () => {
             { re_status: { $in: pendingStatuses } },
         ]
     });
-
     for (let form of forms) {
         // Convert your date + time fields into a real Date object
         const consultantUpdatedAt = new Date(
           `${form.consultant_update_date} ${form.consultant_update_time}`
         );
-
         // If parsing failed skip
         if (!consultantUpdatedAt || isNaN(consultantUpdatedAt)) continue;
 
@@ -46,12 +45,10 @@ cron.schedule("* * * * *", async () => {
             if (pendingStatuses.includes(form.re_status)) {
                 form.re_status = "expired";
             }
-
             await form.save();
         }
     }
 });
-
 // cron.schedule("* * * * *", async () => {
 //     const now = new Date();
 
@@ -494,7 +491,7 @@ const getContractorFormsByStatus = async (req, res) => {
 
     // Define allowed groups based on model enums
     const statusGroups = {
-      contractor: ["approved", "rejected", "expired", "received"],
+      contractor: ["approved", "rejected", "expired", "received",'revert','pending'],
       // contractor has different values
       inspector: ["okay", "not_okay",'pending', "expired"],
       surveyor: ["okay", "not_okay","pending", "expired"],
