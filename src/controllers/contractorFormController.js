@@ -4,9 +4,8 @@ const cron = require("node-cron");
 // After 24 Hourse By default when submitted Contractor Status Will be Changed if any empty
 cron.schedule("* * * * *", async () => {
     const now = new Date();
-   // const hours24 = 24 * 60 * 60 * 1000;
-   const hours24 = 5 * 60 * 1000; // 5-minute timer
-    const pendingStatuses = ["pending", ""]; 
+    const hours24 = 24 * 60 * 60 * 1000;
+    const pendingStatuses = ["pending"]; 
     // Fetch only forms where consultant has updated (accepted/processed)
     const forms = await ContractorForm.find({
         consultant_update_date: { $exists: true, $ne: "" },
@@ -17,8 +16,8 @@ cron.schedule("* * * * *", async () => {
             { me_status: { $in: pendingStatuses } },
             { are_status: { $in: pendingStatuses } },
             { re_status: { $in: pendingStatuses } },
-        ]
-    });
+        ] 
+    }); 
     for (let form of forms) {
         // Convert your date + time fields into a real Date object
         const consultantUpdatedAt = new Date(
@@ -506,11 +505,8 @@ const getContractorFormsByStatus = async (req, res) => {
         "expired"
       ],
     };
-
     allowedStatuses = statusGroups[type];
-
     let contractorForms;
-
     if (status === "all") {
       // Return only allowed statuses for the selected type
       contractorForms = await ContractorForm.find({
