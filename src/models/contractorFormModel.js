@@ -97,6 +97,7 @@ const contractorFormSchema = new mongoose.Schema(
         "send_to_contractor",
         "received_from_re",
         "expired",
+        'revert',
       ],
       default: "pending",
     },
@@ -111,7 +112,7 @@ const contractorFormSchema = new mongoose.Schema(
       type: String,
       // required: false,
     },
-
+    
     // Inspector fields
     inspector_name: {
       type: String,
