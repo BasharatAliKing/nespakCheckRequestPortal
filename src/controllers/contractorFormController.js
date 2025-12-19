@@ -101,6 +101,7 @@ const getContractorkpis = async (req, res) => {
       [
         "pending",
         "received",
+        "received_from_consultant",
         "approved",
         "rejected",
         "expired",
@@ -134,6 +135,7 @@ const getContractorkpis = async (req, res) => {
         "pending",
         "send_to_contractor",
         "received_from_re",
+        "approved",
         "expired",
         "revert",
       ].includes(form.consultant_status);
@@ -317,13 +319,17 @@ const getContractorkpisByProject = async (req, res) => {
     const total_length = contractorForms.length;
     const total_request = contractorForms.filter((form) =>
       [
-        "pending",
+       "pending",
         "received",
+        "received_from_consultant",
         "approved",
         "rejected",
-        "revert",
         "expired",
+        "revert",
       ].includes(form.contractor_status)
+    ).length;
+     const received_from_consultant=contractorForms.filter(
+      (form) => form.contractor_status === "received_from_consultant"
     ).length;
     const pending_request = contractorForms.filter(
       (form) => form.contractor_status === "pending"
@@ -349,10 +355,19 @@ const getContractorkpisByProject = async (req, res) => {
         "pending",
         "send_to_contractor",
         "received_from_re",
+        "approved",
+        "expired",
+        "revert",
       ].includes(form.consultant_status);
     }).length;
     const consultant_pending = contractorForms.filter(
       (form) => form.consultant_status === "pending"
+    ).length;
+    const consultant_revert = contractorForms.filter(
+      (form) => form.consultant_status === "revert"
+    ).length;
+    const consultant_approved = contractorForms.filter(
+      (form) => form.consultant_status === "approved"
     ).length;
     const consultant_received_from_contractor = contractorForms.filter(
       (form) => form.consultant_status === "received_from_contractor"
@@ -442,6 +457,7 @@ const getContractorkpisByProject = async (req, res) => {
       constractor: {
         total_request,
         received_request,
+        received_from_consultant,
         pending_request,
         approved,
         not_approved,
@@ -454,6 +470,8 @@ const getContractorkpisByProject = async (req, res) => {
         consultant_received_from_contractor,
         consultant_send_to_contractor,
         consultant_received_from_re,
+        consultant_revert,
+        consultant_approved,
         consultant_expired,
       },
       inspector: {
@@ -530,13 +548,13 @@ const getContractorFormsByStatus = async (req, res) => {
     // Define allowed groups based on model enums
     const statusGroups = {
       contractor: [
+        "pending",
+        "received",
         "received_from_consultant",
         "approved",
         "rejected",
         "expired",
-        "received",
         "revert",
-        "pending",
       ],
       // contractor has different values
       inspector: ["okay", "not_okay", "pending", "expired"],
@@ -546,12 +564,12 @@ const getContractorFormsByStatus = async (req, res) => {
       re: ["okay", "pending", "not_okay", "expired"],
       consultant: [
         "received_from_contractor",
+        "pending",
         "send_to_contractor",
         "received_from_re",
-        "pending",
-        'approved',
-        'revert',
+        "approved",
         "expired",
+        "revert",
       ],
     };
     allowedStatuses = statusGroups[type];
@@ -575,7 +593,6 @@ const getContractorFormsByStatus = async (req, res) => {
     res.status(400).json({ message: "Error retrieving contractor forms", err });
   }
 };
-
 // get list by projectId and status
 const getContractorFormsByProjectAndStatus = async (req, res) => {
   try {
