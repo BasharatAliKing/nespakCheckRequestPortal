@@ -3,56 +3,55 @@ const ContractorForm = require("../models/contractorFormModel");
 const cron = require("node-cron");
 // After 24 Hourse By default when submitted Contractor Status Will be Changed if any empty
 cron.schedule("* * * * *", async () => {
-    const now = new Date();
-    const hours24 = 24 * 60 * 60 * 1000;
-    const pendingStatuses = ["pending"]; 
-    // Fetch only forms where consultant has updated (accepted/processed)
-    const forms = await ContractorForm.find({
-        consultant_update_date: { $exists: true, $ne: "" },
-        consultant_update_time: { $exists: true, $ne: "" },
-        $or: [
-            { inspector_status: { $in: pendingStatuses } },
-            { surveyor_status: { $in: pendingStatuses } },
-            { me_status: { $in: pendingStatuses } },
-            { are_status: { $in: pendingStatuses } },
-            { re_status: { $in: pendingStatuses } },
-        ] 
-    }); 
-    for (let form of forms) {
-        // Convert your date + time fields into a real Date object
-        const consultantUpdatedAt = new Date(
-          `${form.consultant_update_date} ${form.consultant_update_time}`
-        );
-        // If parsing failed skip
-        if (!consultantUpdatedAt || isNaN(consultantUpdatedAt)) continue;
+  const now = new Date();
+  const hours24 = 24 * 60 * 60 * 1000;
+  const pendingStatuses = ["pending"];
+  // Fetch only forms where consultant has updated (accepted/processed)
+  const forms = await ContractorForm.find({
+    consultant_update_date: { $exists: true, $ne: "" },
+    consultant_update_time: { $exists: true, $ne: "" },
+    $or: [
+      { inspector_status: { $in: pendingStatuses } },
+      { surveyor_status: { $in: pendingStatuses } },
+      { me_status: { $in: pendingStatuses } },
+      { are_status: { $in: pendingStatuses } },
+      { re_status: { $in: pendingStatuses } },
+    ],
+  });
+  for (let form of forms) {
+    // Convert your date + time fields into a real Date object
+    const consultantUpdatedAt = new Date(
+      `${form.consultant_update_date} ${form.consultant_update_time}`
+    );
+    // If parsing failed skip
+    if (!consultantUpdatedAt || isNaN(consultantUpdatedAt)) continue;
 
-        // Check if 24h has passed
-        if (now - consultantUpdatedAt >= hours24) {
-            
-            if (pendingStatuses.includes(form.inspector_status)) {
-                form.inspector_status = "expired";
-            }
-            if (pendingStatuses.includes(form.surveyor_status)) {
-                form.surveyor_status = "expired";
-            }
-            if (pendingStatuses.includes(form.me_status)) {
-                form.me_status = "expired";
-            }
-            if (pendingStatuses.includes(form.are_status)) {
-                form.are_status = "expired";
-            }
-            if (pendingStatuses.includes(form.re_status)) {
-                form.re_status = "expired";
-            }
-            await form.save();
-        }
+    // Check if 24h has passed
+    if (now - consultantUpdatedAt >= hours24) {
+      if (pendingStatuses.includes(form.inspector_status)) {
+        form.inspector_status = "expired";
+      }
+      if (pendingStatuses.includes(form.surveyor_status)) {
+        form.surveyor_status = "expired";
+      }
+      if (pendingStatuses.includes(form.me_status)) {
+        form.me_status = "expired";
+      }
+      if (pendingStatuses.includes(form.are_status)) {
+        form.are_status = "expired";
+      }
+      if (pendingStatuses.includes(form.re_status)) {
+        form.re_status = "expired";
+      }
+      await form.save();
     }
+  }
 });
 // cron.schedule("* * * * *", async () => {
 //     const now = new Date();
 
 //     const hours24 = 24 * 60 * 60 * 1000;
-//     const pendingStatuses = ["pending", ""]; 
+//     const pendingStatuses = ["pending", ""];
 //     const forms = await ContractorForm.find({
 //         consultant_accept_time: { $lte: new Date(now - hours24) },
 //         $or: [
@@ -98,13 +97,21 @@ const getContractorkpis = async (req, res) => {
     ];
     // Calculate statistics
     const total_length = contractorForms.length;
-     const total_request = contractorForms.filter((form) =>
-      ["pending", "received", "approved", "rejected", "expired","revert"].includes(
-        form.contractor_status
-      )
+    const total_request = contractorForms.filter((form) =>
+      [
+        "pending",
+        "received",
+        "approved",
+        "rejected",
+        "expired",
+        "revert",
+      ].includes(form.contractor_status)
+    ).length;
+    const received_from_consultant=contractorForms.filter(
+      (form) => form.contractor_status === "received_from_consultant"
     ).length;
     const pending_request = contractorForms.filter(
-      (form)=>form.contractor_status ==='pending'
+      (form) => form.contractor_status === "pending"
     ).length;
     const received_request = contractorForms.filter(
       (form) => form.contractor_status === "received"
@@ -116,94 +123,107 @@ const getContractorkpis = async (req, res) => {
       (form) => form.contractor_status === "rejected"
     ).length;
     const revert = contractorForms.filter(
-      (form)=> form.contractor_status === 'revert'
+      (form) => form.contractor_status === "revert"
     ).length;
     const expired = contractorForms.filter(
       (form) => form.contractor_status === "expired"
     ).length;
-    const consultant_total=contractorForms.filter((form)=>{
-        return ["received_from_contractor", "pending","send_to_contractor","received_from_re", 'expired','revert'].includes(
-            form.consultant_status
-        );
+    const consultant_total = contractorForms.filter((form) => {
+      return [
+        "received_from_contractor",
+        "pending",
+        "send_to_contractor",
+        "received_from_re",
+        "expired",
+        "revert",
+      ].includes(form.consultant_status);
     }).length;
     const consultant_pending = contractorForms.filter(
-        (form) => form.consultant_status === "pending"
+      (form) => form.consultant_status === "pending"
     ).length;
     const consultant_received_from_contractor = contractorForms.filter(
-        (form) => form.consultant_status === "received_from_contractor"
+      (form) => form.consultant_status === "received_from_contractor"
     ).length;
     const consultant_send_to_contractor = contractorForms.filter(
-        (form) => form.consultant_status === "send_to_contractor"
+      (form) => form.consultant_status === "send_to_contractor"
     ).length;
     const consultant_received_from_re = contractorForms.filter(
-        (form) => form.consultant_status === "received_from_re"
+      (form) => form.consultant_status === "received_from_re"
     ).length;
-    const consultant_revert=contractorForms.filter(
-      (form)=> form.consultant_status === 'revert',
+    const consultant_approved = contractorForms.filter(
+      (form) => form.consultant_status === "approved"
+    ).length;
+    const consultant_revert = contractorForms.filter(
+      (form) => form.consultant_status === "revert"
     ).length;
     const consultant_expired = contractorForms.filter(
-        (form) => form.consultant_status === "expired"
+      (form) => form.consultant_status === "expired"
     ).length;
     const inspector_okay = contractorForms.filter(
-        (form) => form.inspector_status === "okay"
+      (form) => form.inspector_status === "okay"
     ).length;
     const inspector_not_okay = contractorForms.filter(
-        (form) => form.inspector_status === "not_okay"
+      (form) => form.inspector_status === "not_okay"
     ).length;
     const inspector_pending = contractorForms.filter(
-        (form) => form.inspector_status === 'pending'
+      (form) => form.inspector_status === "pending"
     ).length;
     const inspector_expired = contractorForms.filter(
       (form) => form.inspector_status === "expired"
     ).length;
-    const inspector_total = inspector_okay + inspector_not_okay + inspector_pending + inspector_expired;
+    const inspector_total =
+      inspector_okay +
+      inspector_not_okay +
+      inspector_pending +
+      inspector_expired;
     const surveyor_okay = contractorForms.filter(
-        (form) => form.surveyor_status === "okay"
+      (form) => form.surveyor_status === "okay"
     ).length;
     const surveyor_not_okay = contractorForms.filter(
-        (form) => form.surveyor_status === "not_okay"
+      (form) => form.surveyor_status === "not_okay"
     ).length;
     const surveyor_pending = contractorForms.filter(
-        (form) => form.surveyor_status === 'pending'
+      (form) => form.surveyor_status === "pending"
     ).length;
     const surveyor_expired = contractorForms.filter(
       (form) => form.surveyor_status === "expired"
     ).length;
-    const surveyor_total = surveyor_okay + surveyor_not_okay + surveyor_pending + surveyor_expired;
+    const surveyor_total =
+      surveyor_okay + surveyor_not_okay + surveyor_pending + surveyor_expired;
     const me_okay = contractorForms.filter(
-        (form) => form.me_status === "okay"
+      (form) => form.me_status === "okay"
     ).length;
     const me_not_okay = contractorForms.filter(
-        (form) => form.me_status === "not_okay"
+      (form) => form.me_status === "not_okay"
     ).length;
     const me_pending = contractorForms.filter(
-        (form) => form.me_status === 'pending'
+      (form) => form.me_status === "pending"
     ).length;
     const me_expired = contractorForms.filter(
       (form) => form.me_status === "expired"
     ).length;
     const me_total = me_okay + me_not_okay + me_pending + me_expired;
     const are_okay = contractorForms.filter(
-        (form) => form.are_status === "okay"
+      (form) => form.are_status === "okay"
     ).length;
     const are_not_okay = contractorForms.filter(
-        (form) => form.are_status === "not_okay"
+      (form) => form.are_status === "not_okay"
     ).length;
     const are_pending = contractorForms.filter(
-        (form) => form.are_status === 'pending'
+      (form) => form.are_status === "pending"
     ).length;
     const are_expired = contractorForms.filter(
       (form) => form.are_status === "expired"
     ).length;
     const are_total = are_okay + are_not_okay + are_pending + are_expired;
     const re_approved = contractorForms.filter(
-        (form) => form.re_status === "approved"
+      (form) => form.re_status === "okay"
     ).length;
     const re_not_approved = contractorForms.filter(
-        (form) => form.re_status === "not_approved"
+      (form) => form.re_status === "not_okay"
     ).length;
     const re_pending = contractorForms.filter(
-        (form) => form.re_status === 'pending'
+      (form) => form.re_status === "pending"
     ).length;
     const re_expired = contractorForms.filter(
       (form) => form.re_status === "expired"
@@ -215,56 +235,58 @@ const getContractorkpis = async (req, res) => {
       constractor: {
         total_request,
         received_request,
+        received_from_consultant,
         pending_request,
         approved,
         not_approved,
         revert,
         expired,
       },
-         consultant: {
-          consultant_total,
+      consultant: {
+        consultant_total,
         consultant_pending,
         consultant_received_from_contractor,
         consultant_send_to_contractor,
         consultant_received_from_re,
         consultant_revert,
+        consultant_approved,
         consultant_expired,
-        },
+      },
       inspector: {
         inspector_total,
         inspector_okay,
         inspector_not_okay,
         inspector_pending,
-        inspector_expired
+        inspector_expired,
       },
-        surveyor: {
+      surveyor: {
         surveyor_total,
         surveyor_okay,
         surveyor_not_okay,
         surveyor_pending,
-        surveyor_expired
-        },
-        me: {
+        surveyor_expired,
+      },
+      me: {
         me_total,
         me_okay,
         me_not_okay,
         me_pending,
-        me_expired
-        },
-        are: {
+        me_expired,
+      },
+      are: {
         are_total,
         are_okay,
         are_not_okay,
         are_pending,
-        are_expired
-        },
-        re: {
+        are_expired,
+      },
+      re: {
         re_total,
         re_approved,
         re_not_approved,
         re_pending,
-        re_expired
-        },  
+        re_expired,
+      },
     };
 
     res
@@ -283,7 +305,7 @@ const getContractorkpisByProject = async (req, res) => {
     const { id } = req.params;
     // Build filter object
     const contractorForms = await ContractorForm.find({ project_id: id });
-   // Get unique contractor names
+    // Get unique contractor names
     const uniqueNames = [
       ...new Set(
         contractorForms
@@ -294,12 +316,17 @@ const getContractorkpisByProject = async (req, res) => {
     // Calculate statistics
     const total_length = contractorForms.length;
     const total_request = contractorForms.filter((form) =>
-      ["pending", "received", "approved", "rejected","revert" ,"expired"].includes(
-        form.contractor_status
-      )
+      [
+        "pending",
+        "received",
+        "approved",
+        "rejected",
+        "revert",
+        "expired",
+      ].includes(form.contractor_status)
     ).length;
-     const pending_request = contractorForms.filter(
-      (form)=>form.contractor_status ==='pending'
+    const pending_request = contractorForms.filter(
+      (form) => form.contractor_status === "pending"
     ).length;
     const received_request = contractorForms.filter(
       (form) => form.contractor_status === "received"
@@ -311,91 +338,99 @@ const getContractorkpisByProject = async (req, res) => {
       (form) => form.contractor_status === "rejected"
     ).length;
     const revert = contractorForms.filter(
-      (form)=> form.contractor_status === 'revert'
+      (form) => form.contractor_status === "revert"
     ).length;
     const expired = contractorForms.filter(
       (form) => form.contractor_status === "expired"
     ).length;
-     const consultant_total=contractorForms.filter((form)=>{
-        return ["received_from_contractor", "pending","send_to_contractor","received_from_re"].includes(
-            form.consultant_status
-        );
+    const consultant_total = contractorForms.filter((form) => {
+      return [
+        "received_from_contractor",
+        "pending",
+        "send_to_contractor",
+        "received_from_re",
+      ].includes(form.consultant_status);
     }).length;
     const consultant_pending = contractorForms.filter(
-        (form) => form.consultant_status === "pending"
+      (form) => form.consultant_status === "pending"
     ).length;
     const consultant_received_from_contractor = contractorForms.filter(
-        (form) => form.consultant_status === "received_from_contractor"
+      (form) => form.consultant_status === "received_from_contractor"
     ).length;
     const consultant_send_to_contractor = contractorForms.filter(
-        (form) => form.consultant_status === "send_to_contractor"
+      (form) => form.consultant_status === "send_to_contractor"
     ).length;
     const consultant_received_from_re = contractorForms.filter(
-        (form) => form.consultant_status === "received_from_re"
+      (form) => form.consultant_status === "received_from_re"
     ).length;
     const consultant_expired = contractorForms.filter(
-        (form) => form.consultant_status === "expired"
+      (form) => form.consultant_status === "expired"
     ).length;
     const inspector_okay = contractorForms.filter(
-        (form) => form.inspector_status === "okay"
+      (form) => form.inspector_status === "okay"
     ).length;
     const inspector_not_okay = contractorForms.filter(
-        (form) => form.inspector_status === "not_okay"
+      (form) => form.inspector_status === "not_okay"
     ).length;
     const inspector_pending = contractorForms.filter(
-        (form) => form.inspector_status === 'pending'
+      (form) => form.inspector_status === "pending"
     ).length;
     const inspector_expired = contractorForms.filter(
       (form) => form.inspector_status === "expired"
     ).length;
-    const inspector_total = inspector_okay + inspector_not_okay + inspector_pending + inspector_expired;
+    const inspector_total =
+      inspector_okay +
+      inspector_not_okay +
+      inspector_pending +
+      inspector_expired;
     const surveyor_okay = contractorForms.filter(
-        (form) => form.surveyor_status === "okay"
+      (form) => form.surveyor_status === "okay"
     ).length;
     const surveyor_not_okay = contractorForms.filter(
-        (form) => form.surveyor_status === "not_okay"
+      (form) => form.surveyor_status === "not_okay"
     ).length;
     const surveyor_pending = contractorForms.filter(
-        (form) => form.surveyor_status === 'pending'
+      (form) => form.surveyor_status === "pending"
     ).length;
     const surveyor_expired = contractorForms.filter(
       (form) => form.surveyor_status === "expired"
     ).length;
-    const surveyor_total = surveyor_okay + surveyor_not_okay + surveyor_pending + surveyor_expired;
+    const surveyor_total =
+      surveyor_okay + surveyor_not_okay + surveyor_pending + surveyor_expired;
     const me_okay = contractorForms.filter(
-        (form) => form.me_status === "okay"
+      (form) => form.me_status === "okay"
     ).length;
     const me_not_okay = contractorForms.filter(
-        (form) => form.me_status === "not_okay"
+      (form) => form.me_status === "not_okay"
     ).length;
     const me_pending = contractorForms.filter(
-        (form) => form.me_status === 'pending'
+      (form) => form.me_status === "pending"
     ).length;
     const me_expired = contractorForms.filter(
       (form) => form.me_status === "expired"
     ).length;
     const me_total = me_okay + me_not_okay + me_pending + me_expired;
     const are_okay = contractorForms.filter(
-        (form) => form.are_status === "okay"
+      (form) => form.are_status === "okay"
     ).length;
     const are_not_okay = contractorForms.filter(
-        (form) => form.are_status === "not_okay"
+      (form) => form.are_status === "not_okay"
     ).length;
     const are_pending = contractorForms.filter(
-        (form) => form.are_status === 'pending'
+      (form) => form.are_status === "pending"
     ).length;
     const are_expired = contractorForms.filter(
       (form) => form.are_status === "expired"
     ).length;
     const are_total = are_okay + are_not_okay + are_pending + are_expired;
     const re_approved = contractorForms.filter(
-        (form) => form.re_status === "approved"
+      (form) => form.re_status === "approved"
     ).length;
     const re_not_approved = contractorForms.filter(
-        (form) => form.re_status === "not_approved"
+      (form) => form.re_status === "not_approved"
     ).length;
     const re_pending = contractorForms.filter(
-        (form) => form.re_status === 'pending'
+      (form) => form.re_status === "pending"
     ).length;
     const re_expired = contractorForms.filter(
       (form) => form.re_status === "expired"
@@ -413,51 +448,51 @@ const getContractorkpisByProject = async (req, res) => {
         revert,
         expired,
       },
-        consultant: {
+      consultant: {
         consultant_total,
         consultant_pending,
         consultant_received_from_contractor,
         consultant_send_to_contractor,
         consultant_received_from_re,
         consultant_expired,
-        },
+      },
       inspector: {
         inspector_total,
         inspector_okay,
         inspector_not_okay,
         inspector_pending,
-        inspector_expired
+        inspector_expired,
       },
-        surveyor: {
+      surveyor: {
         surveyor_total,
         surveyor_okay,
         surveyor_not_okay,
         surveyor_pending,
-        surveyor_expired
-        },
-        me: {
+        surveyor_expired,
+      },
+      me: {
         me_total,
         me_okay,
         me_not_okay,
         me_pending,
-        me_expired
-        },
-        are: {
+        me_expired,
+      },
+      are: {
         are_total,
         are_okay,
         are_not_okay,
         are_pending,
-        are_expired
-        },
-        re: {
+        are_expired,
+      },
+      re: {
         re_total,
         re_approved,
         re_not_approved,
         re_pending,
-        re_expired
-        },  
+        re_expired,
+      },
     };
-    
+
     res
       .status(200)
       .json({ message: "Contractor KPIs Retrieved Successfully", kpiData });
@@ -494,19 +529,29 @@ const getContractorFormsByStatus = async (req, res) => {
 
     // Define allowed groups based on model enums
     const statusGroups = {
-      contractor: ["approved", "rejected", "expired", "received",'revert','pending'],
+      contractor: [
+        "received_from_consultant",
+        "approved",
+        "rejected",
+        "expired",
+        "received",
+        "revert",
+        "pending",
+      ],
       // contractor has different values
-      inspector: ["okay", "not_okay",'pending', "expired"],
-      surveyor: ["okay", "not_okay","pending", "expired"],
+      inspector: ["okay", "not_okay", "pending", "expired"],
+      surveyor: ["okay", "not_okay", "pending", "expired"],
       me: ["okay", "pending", "not_okay", "expired"],
-      are: ["okay", "pending", "not_okay" ,"expired"],
+      are: ["okay", "pending", "not_okay", "expired"],
       re: ["okay", "pending", "not_okay", "expired"],
       consultant: [
         "received_from_contractor",
         "send_to_contractor",
         "received_from_re",
-        'pending',
-        "expired"
+        "pending",
+        'approved',
+        'revert',
+        "expired",
       ],
     };
     allowedStatuses = statusGroups[type];
@@ -527,30 +572,29 @@ const getContractorFormsByStatus = async (req, res) => {
       data: contractorForms,
     });
   } catch (err) {
-    res
-      .status(400)
-      .json({ message: "Error retrieving contractor forms", err });
+    res.status(400).json({ message: "Error retrieving contractor forms", err });
   }
 };
 
 // get list by projectId and status
 const getContractorFormsByProjectAndStatus = async (req, res) => {
   try {
-    const { projectId,type,status } = req.params;
+    const { projectId, type, status } = req.params;
     const allowedFields = {
-      contractor:  "contractor_status",
+      contractor: "contractor_status",
       consultant: "consultant_status",
       inspector: "inspector_status",
       surveyor: "surveyor_status",
-      me:"me_status",
+      me: "me_status",
       are: "are_status",
       re: "re_status",
     };
-     // Check if type is valid
+    // Check if type is valid
     const statusField = allowedFields[type];
     if (!statusField) {
       return res.status(400).json({
-        message: "Invalid status type. Allowed types: contractor, consultant, inspector, surveyor, re, are",
+        message:
+          "Invalid status type. Allowed types: contractor, consultant, inspector, surveyor, re, are",
       });
     }
     let contractorForms;
@@ -566,18 +610,23 @@ const getContractorFormsByProjectAndStatus = async (req, res) => {
     }
     res.status(200).json({
       message: "Contractor Forms Retrieved Successfully",
-      data:contractorForms,
+      data: contractorForms,
     });
   } catch (err) {
-    res.status(400).json({ message: "Error in Retrieving Contractor Forms", err });
+    res
+      .status(400)
+      .json({ message: "Error in Retrieving Contractor Forms", err });
   }
 };
 // get list status of consultant by status
 const createContractorForm = async (req, res) => {
   try {
     const contractorForm = req.body;
-    if (!contractorForm.contractor_status || contractorForm.contractor_status.trim() === "") {
-      contractorForm.contractor_status = "pending";   // default
+    if (
+      !contractorForm.contractor_status ||
+      contractorForm.contractor_status.trim() === ""
+    ) {
+      contractorForm.contractor_status = "pending"; // default
     }
     const newContractorForm = new ContractorForm(contractorForm);
     await newContractorForm.save();
@@ -585,23 +634,21 @@ const createContractorForm = async (req, res) => {
       message: "Contractor Form Created Successfully",
       newContractorForm,
     });
-} catch (err) {
-  if (err.name === "ValidationError") {
-    const firstError = Object.values(err.errors)[0].message;  // get only first error
-    return res.status(400).json({ message: firstError });
+  } catch (err) {
+    if (err.name === "ValidationError") {
+      const firstError = Object.values(err.errors)[0].message; // get only first error
+      return res.status(400).json({ message: firstError });
+    }
+    res.status(400).json({ message: "Error in Creating Contractor Form" });
   }
-  res.status(400).json({ message: "Error in Creating Contractor Form" });
-}
 };
 const getContractorForms = async (req, res) => {
   try {
     const contractorForms = await ContractorForm.find();
-    res
-      .status(200)
-      .json({
-        message: "Contractor Forms Retrieved Successfully",
-        contractorForms,
-      });
+    res.status(200).json({
+      message: "Contractor Forms Retrieved Successfully",
+      contractorForms,
+    });
   } catch (err) {
     res
       .status(400)
@@ -618,12 +665,10 @@ const getContractorFormById = async (req, res) => {
       return res.status(404).json({ message: "Contractor Form not found" });
     }
 
-    res
-      .status(200)
-      .json({
-        message: "Contractor Form Retrieved Successfully",
-        contractorForm,
-      });
+    res.status(200).json({
+      message: "Contractor Form Retrieved Successfully",
+      contractorForm,
+    });
   } catch (err) {
     res
       .status(400)
@@ -645,12 +690,10 @@ const updateContractorForm = async (req, res) => {
     if (!updatedContractorForm) {
       return res.status(404).json({ message: "Contractor Form not found" });
     }
-    res
-      .status(200)
-      .json({
-        message: "Contractor Form Updated Successfully",
-        updatedContractorForm,
-      });
+    res.status(200).json({
+      message: "Contractor Form Updated Successfully",
+      updatedContractorForm,
+    });
   } catch (err) {
     res.status(400).json({ message: "Error in Updating Contractor Form", err });
   }

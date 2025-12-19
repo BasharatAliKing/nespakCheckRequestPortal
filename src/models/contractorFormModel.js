@@ -53,7 +53,7 @@ const contractorFormSchema = new mongoose.Schema(
     },
     contractor_status: {
       type: String,
-      enum: ["pending", "received", "approved", "rejected", "expired", "revert"],
+      enum: ["pending", "received","received_from_consultant","approved", "rejected", "expired", "revert"],
       default: "pending",
     },
     contractor_submit_date: {
@@ -97,6 +97,7 @@ const contractorFormSchema = new mongoose.Schema(
         "send_to_contractor",
         "received_from_re",
         "expired",
+        'approved',
         'revert',
       ],
       default: "pending",
