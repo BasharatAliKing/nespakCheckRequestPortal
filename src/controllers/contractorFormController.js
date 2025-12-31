@@ -395,7 +395,7 @@ const getContractorkpisByRoleAndId = async (req, res) => {
     const me_expired = countBy("me_status", "expired");
 
     const me_total = me_okay + me_not_okay + me_pending + me_expired;
-
+ 
     // ================= ARE =================
     const are_okay = countBy("are_status", "okay");
     const are_not_okay = countBy("are_status", "not_okay");
@@ -484,7 +484,6 @@ const getContractorkpisByRoleAndId = async (req, res) => {
     });
   }
 };
-
 // get Contractor KPIs by Project ID
 const getContractorkpisByProject = async (req, res) => {
   try {
