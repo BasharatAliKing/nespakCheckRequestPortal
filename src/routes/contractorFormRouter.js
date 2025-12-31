@@ -2,9 +2,12 @@ const express=require('express');
 const router=express.Router();
 const {
     getContractorkpis,
+    getContractorkpisByRoleAndId,
     getContractorkpisByProject,
     getContractorFormsByStatus,
+    getContractorFormsByStatusRoleuserId,
     getContractorFormsByProjectAndStatus,
+    getContractorFormsByProjectAndStatusRoleuserId,
     createContractorForm,
     getContractorForms,
     getContractorFormById,
@@ -15,10 +18,15 @@ const authMiddleware=require('../middleware/authMiddleware');
 
 // KPI route must come before :id route to avoid conflicts
 router.get('/main-form/contractorkpis',authMiddleware,getContractorkpis);
+router.get('/main-form/contractorkpis/:role/:userId',authMiddleware,getContractorkpisByRoleAndId);
+
 router.get('/main-form/contractorkpis/:id',authMiddleware,getContractorkpisByProject);
 // status routes
-router.get('/main-form/status/:type/:status',authMiddleware,getContractorFormsByStatus);
+router.get('/main-form/status/:type/:status/',authMiddleware,getContractorFormsByStatus);
+router.get('/main-form/status/:type/:status/:role/:userId',authMiddleware,getContractorFormsByStatusRoleuserId);
+
 router.get('/main-form/status/:projectId/:type/:status',authMiddleware,getContractorFormsByProjectAndStatus); 
+router.get('/main-form/status/:projectId/:type/:status/:role/:userId',authMiddleware,getContractorFormsByProjectAndStatusRoleuserId); 
 
 // All routes require authentication
 router.post('/main-form',authMiddleware,createContractorForm);

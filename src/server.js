@@ -24,7 +24,7 @@ app.use('/api', contractorFormRouter);
 app.use('/api', clientRouter);
 app.use('/api', contractorRouter);
 app.use('/api', consultantRouter);
-app.use('/api', userRouter);
+app.use('/api', userRouter);   
 app.use('/api', projectRouter);
 app.use('/', (req,res)=>{
     res.send("Hello from the Server Side...");

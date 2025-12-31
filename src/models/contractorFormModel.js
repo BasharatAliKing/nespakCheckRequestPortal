@@ -7,6 +7,9 @@ const contractorFormSchema = new mongoose.Schema(
       type: String,
       required: [true, "Project Id is required"],
     },
+    project_title:{
+      type:String,
+    },
     rfi_no: {
       type: String,
       required: [true, "RFI No is required"],
@@ -65,6 +68,9 @@ const contractorFormSchema = new mongoose.Schema(
       // required: false,
     },
     // Contractor fields
+    selected_contractor:{
+      type:String,
+    },
     selected_inspector:{
       type:String,
     },
