@@ -865,7 +865,7 @@ const getContractorFormsByStatusRoleuserId = async (req, res) => {
       message: `${type} Data retrieved successfully`,
       data: contractorForms,
     });
-  } catch (err) {
+  } catch (err) { 
     res.status(500).json({
       message: "Error retrieving contractor forms",
       err,

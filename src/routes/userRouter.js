@@ -9,7 +9,7 @@ router.post('/login', login);
 // User CRUD routes
 router.get('/users', getUsers);
 // get all by role
-router.get('/users/role/:role', getUserByRole)
+router.get('/users/role', getUserByRole);
 router.get('/users/:id', getUserById);
 router.put('/users/:id', updateUser);
 router.delete('/users/:id', deleteUser);
