@@ -137,6 +137,7 @@ const getContractorkpis = async (req, res) => {
         "send_to_contractor",
         "received_from_re",
         "approved",
+        "rejected",
         "expired",
         "revert",
       ].includes(form.consultant_status);
@@ -155,6 +156,9 @@ const getContractorkpis = async (req, res) => {
     ).length;
     const consultant_approved = contractorForms.filter(
       (form) => form.consultant_status === "approved"
+    ).length;
+    const consultant_rejected = contractorForms.filter(
+      (form) => form.consultant_status === "rejected"
     ).length;
     const consultant_revert = contractorForms.filter(
       (form) => form.consultant_status === "revert"
@@ -253,6 +257,7 @@ const getContractorkpis = async (req, res) => {
         consultant_received_from_re,
         consultant_revert,
         consultant_approved,
+        consultant_rejected,
         consultant_expired,
       },
       inspector: {
@@ -708,7 +713,6 @@ const getContractorkpisByProject = async (req, res) => {
 const getContractorFormsByStatus = async (req, res) => {
   try {
     const { type, status } = req.params;
-    // Map "type" to status fields
     const allowedFields = {
       contractor: "contractor_status",
       consultant: "consultant_status",
@@ -718,7 +722,9 @@ const getContractorFormsByStatus = async (req, res) => {
       are: "are_status",
       re: "re_status",
     };
+
     const statusField = allowedFields[type];
+
     if (!statusField) {
       return res.status(400).json({
         message:
@@ -726,9 +732,6 @@ const getContractorFormsByStatus = async (req, res) => {
       });
     }
 
-    let allowedStatuses = [];
-
-    // Define allowed groups based on model enums
     const statusGroups = {
       contractor: [
         "pending",
@@ -739,7 +742,6 @@ const getContractorFormsByStatus = async (req, res) => {
         "expired",
         "revert",
       ],
-      // contractor has different values
       inspector: ["okay", "not_okay", "pending", "expired"],
       surveyor: ["okay", "not_okay", "pending", "expired"],
       me: ["okay", "pending", "not_okay", "expired"],
@@ -755,24 +757,29 @@ const getContractorFormsByStatus = async (req, res) => {
         "revert",
       ],
     };
-    allowedStatuses = statusGroups[type];
-    let contractorForms;
+
+    const allowedStatuses = statusGroups[type];
+
+    let query = {};
+
     if (status === "all") {
-      // Return only allowed statuses for the selected type
-      contractorForms = await ContractorForm.find({
-        [statusField]: { $in: allowedStatuses },
-      });
+      query[statusField] = { $in: allowedStatuses };
     } else {
-      contractorForms = await ContractorForm.find({
-        [statusField]: status,
-      });
+      query[statusField] = status;
     }
+
+    const contractorForms = await ContractorForm.find(query)
+      .sort({ createdAt: -1 }); // 🔥 latest first
+
     res.status(200).json({
       message: `${type} data retrieved successfully`,
       data: contractorForms,
     });
   } catch (err) {
-    res.status(400).json({ message: "Error retrieving contractor forms", err });
+    res.status(400).json({
+      message: "Error retrieving contractor forms",
+      err,
+    });
   }
 };
 // get Contractor form by type status role and userId
@@ -858,9 +865,7 @@ const getContractorFormsByStatusRoleuserId = async (req, res) => {
     } else {
       query[statusField] = status;
     }
-
-    const contractorForms = await ContractorForm.find(query);
-
+    const contractorForms = await ContractorForm.find(query).sort({createdAt: -1});
     res.status(200).json({
       message: `${type} Data retrieved successfully`,
       data: contractorForms,
@@ -896,13 +901,13 @@ const getContractorFormsByProjectAndStatus = async (req, res) => {
     let contractorForms;
     // If user wants ALL data
     if (status === "all") {
-      contractorForms = await ContractorForm.find({ project_id: projectId });
+      contractorForms = await ContractorForm.find({ project_id: projectId }).sort({ createdAt: -1 }); // 🔥 latest first;
     } else {
       // Filter based on selected status field
       contractorForms = await ContractorForm.find({
         project_id: projectId,
         [statusField]: status,
-      });
+      }).sort({ createdAt: -1 }); // 🔥 latest first;
     }
     res.status(200).json({
       message: "Contractor Forms Retrieved Successfully",
@@ -968,7 +973,7 @@ const getContractorFormsByProjectAndStatusRoleuserId = async (req, res) => {
       query[statusField] = status;
     }
 
-    const contractorForms = await ContractorForm.find(query);
+    const contractorForms = await ContractorForm.find(query).sort({ createdAt: -1 }); // 🔥 latest first;
 
     res.status(200).json({
       message: "Contractor Forms Retrieved Successfully",

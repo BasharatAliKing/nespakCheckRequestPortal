@@ -18,8 +18,7 @@ const getUserByRole = async (req, res) => {
     const totalmes = await User.find({ role: "me" });
     const totalares = await User.find({ role: "are" });
     const totalre = await User.find({ role: "re" });
-    //const users=await User.find({role});
-    const users = {
+     const users = {
       totalinspectors,
       totalsurveyors,
       totalmes,

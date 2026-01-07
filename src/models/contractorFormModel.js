@@ -104,6 +104,7 @@ const contractorFormSchema = new mongoose.Schema(
         "received_from_re",
         "expired",
         'approved',
+        'rejected',
         'revert',
       ],
       default: "pending",
