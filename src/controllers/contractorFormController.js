@@ -26,64 +26,37 @@ cron.schedule("* * * * *", async () => {
     );
     // If parsing failed skip
     if (!consultantUpdatedAt || isNaN(consultantUpdatedAt)) continue;
-
     // Check if 24h has passed
     if (now - consultantUpdatedAt >= hours24) {
       if (pendingStatuses.includes(form.inspector_status)) {
         form.inspector_status = "expired";
+        form.contractor_status="expired";
+        form.consultant_status="expired";
       }
       if (pendingStatuses.includes(form.surveyor_status)) {
         form.surveyor_status = "expired";
+         form.contractor_status="expired";
+        form.consultant_status="expired";
       }
       if (pendingStatuses.includes(form.me_status)) {
         form.me_status = "expired";
+         form.contractor_status="expired";
+        form.consultant_status="expired";
       }
       if (pendingStatuses.includes(form.are_status)) {
         form.are_status = "expired";
+         form.contractor_status="expired";
+        form.consultant_status="expired";
       }
       if (pendingStatuses.includes(form.re_status)) {
         form.re_status = "expired";
+         form.contractor_status="expired";
+        form.consultant_status="expired";
       }
       await form.save();
     }
   }
 });
-// cron.schedule("* * * * *", async () => {
-//     const now = new Date();
-
-//     const hours24 = 24 * 60 * 60 * 1000;
-//     const pendingStatuses = ["pending", ""];
-//     const forms = await ContractorForm.find({
-//         consultant_accept_time: { $lte: new Date(now - hours24) },
-//         $or: [
-//             { inspector_status: { $in: pendingStatuses } },
-//             { surveyor_status: { $in: pendingStatuses } },
-//             { me_status: { $in: pendingStatuses } },
-//             { are_status: { $in: pendingStatuses } },
-//             { re_status: { $in: pendingStatuses } },
-//         ]
-//     });
-//     for (let form of forms) {
-//         if (pendingStatuses.includes(form.inspector_status)) {
-//             form.inspector_status = "expired";
-//         }
-//         if (pendingStatuses.includes(form.surveyor_status)) {
-//             form.surveyor_status = "expired";
-//         }
-//         if (pendingStatuses.includes(form.me_status)) {
-//             form.me_status = "expired";
-//         }
-//         if (pendingStatuses.includes(form.are_status)) {
-//             form.are_status = "expired";
-//         }
-//         if (pendingStatuses.includes(form.re_status)) {
-//             form.re_status = "expired";
-//         }
-
-//         await form.save();
-//     }
-// });
-
 // get Contractor KPIs
 const getContractorkpis = async (req, res) => {
   try {
