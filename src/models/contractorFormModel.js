@@ -48,7 +48,10 @@ const contractorFormSchema = new mongoose.Schema(
     },
     boq_item_no: {
       type: String,
-      required: [true, "BOQ Item No is required"],
+    //  required: [true, "BOQ Item No is required"],
+    },
+    non_boq_item:{
+     type:String,
     },
     drawing_ref_no: {
       type: String,
