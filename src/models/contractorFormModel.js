@@ -1,5 +1,16 @@
 const mongoose = require("mongoose");
 
+//  attachmentSchema here
+const attachmentSchema = new mongoose.Schema(
+  {
+    file_path: {
+      type: String,
+      required: true,
+    },
+  },
+  { _id: true },
+);
+
 // schema here
 const contractorFormSchema = new mongoose.Schema(
   {
@@ -7,8 +18,8 @@ const contractorFormSchema = new mongoose.Schema(
       type: String,
       required: [true, "Project Id is required"],
     },
-    project_title:{
-      type:String,
+    project_title: {
+      type: String,
     },
     rfi_no: {
       type: String,
@@ -23,8 +34,8 @@ const contractorFormSchema = new mongoose.Schema(
       enum: ["yes", "no"],
       required: [true, "Previously Requested is required"],
     },
-    previous_rfi_no:{
-      type:String,
+    previous_rfi_no: {
+      type: String,
     },
     date_of_inspection: {
       type: Date,
@@ -48,10 +59,10 @@ const contractorFormSchema = new mongoose.Schema(
     },
     boq_item_no: {
       type: String,
-    //  required: [true, "BOQ Item No is required"],
+      //  required: [true, "BOQ Item No is required"],
     },
-    non_boq_item:{
-     type:String,
+    non_boq_item: {
+      type: String,
     },
     drawing_ref_no: {
       type: String,
@@ -59,7 +70,15 @@ const contractorFormSchema = new mongoose.Schema(
     },
     contractor_status: {
       type: String,
-      enum: ["pending", "received","received_from_consultant","approved", "rejected", "expired", "revert"],
+      enum: [
+        "pending",
+        "received",
+        "received_from_consultant",
+        "approved",
+        "rejected",
+        "expired",
+        "revert",
+      ],
       default: "pending",
     },
     contractor_submit_date: {
@@ -70,24 +89,28 @@ const contractorFormSchema = new mongoose.Schema(
       type: String,
       // required: false,
     },
+    contractor_attachments: {
+      type: [attachmentSchema],
+      default: [],
+    },
     // Contractor fields
-    selected_contractor:{
-      type:String,
+    selected_contractor: {
+      type: String,
     },
-    selected_inspector:{
-      type:String,
+    selected_inspector: {
+      type: String,
     },
-    selected_surveyor:{
-      type:String,
+    selected_surveyor: {
+      type: String,
     },
-    selected_me:{
-      type:String,
+    selected_me: {
+      type: String,
     },
-    selected_are:{
-      type:String,
+    selected_are: {
+      type: String,
     },
-    selected_re:{
-      type:String,
+    selected_re: {
+      type: String,
     },
     contractor_name: {
       type: String,
@@ -106,14 +129,14 @@ const contractorFormSchema = new mongoose.Schema(
         "send_to_contractor",
         "received_from_re",
         "expired",
-        'approved',
-        'rejected',
-        'revert',
+        "approved",
+        "rejected",
+        "revert",
       ],
       default: "pending",
     },
-    consultant_remarks:{
-      type:String,
+    consultant_remarks: {
+      type: String,
     },
     consultant_update_date: {
       type: String,
@@ -123,7 +146,10 @@ const contractorFormSchema = new mongoose.Schema(
       type: String,
       // required: false,
     },
-    
+    consultant_attachments: {
+      type: [attachmentSchema],
+      default: [],
+    },
     // Inspector fields
     inspector_name: {
       type: String,
@@ -135,7 +161,7 @@ const contractorFormSchema = new mongoose.Schema(
     },
     inspector_status: {
       type: String,
-      enum: ["okay","pending", "not_okay", "expired"],
+      enum: ["okay", "pending", "not_okay", "expired"],
       // required: false,
     },
     inspector_update_date: {
@@ -145,6 +171,10 @@ const contractorFormSchema = new mongoose.Schema(
     inspector_update_time: {
       type: String,
       // required: false,
+    },
+    inspector_attachments: {
+      type: [attachmentSchema],
+      default: [],
     },
     // Surveyor fields
     surveyor_name: {
@@ -157,7 +187,7 @@ const contractorFormSchema = new mongoose.Schema(
     },
     surveyor_status: {
       type: String,
-      enum: ["okay","pending", "not_okay", "expired"],
+      enum: ["okay", "pending", "not_okay", "expired"],
       // required: false,
     },
     surveyor_update_date: {
@@ -168,7 +198,10 @@ const contractorFormSchema = new mongoose.Schema(
       type: String,
       // required: false,
     },
-
+    surveyor_attachments: {
+      type: [attachmentSchema],
+      default: [],
+    },
     // ME fields
     me_name: {
       type: String,
@@ -180,7 +213,7 @@ const contractorFormSchema = new mongoose.Schema(
     },
     me_status: {
       type: String,
-      enum: ["okay","pending", "not_okay", "expired"],
+      enum: ["okay", "pending", "not_okay", "expired"],
       //  required: false,
     },
     me_update_date: {
@@ -191,7 +224,10 @@ const contractorFormSchema = new mongoose.Schema(
       type: String,
       // required: false,
     },
-
+    me_attachments: {
+      type: [attachmentSchema],
+      default: [],
+    },
     // ARE fields
     are_name: {
       type: String,
@@ -203,7 +239,7 @@ const contractorFormSchema = new mongoose.Schema(
     },
     are_status: {
       type: String,
-      enum: ["okay","pending", "not_okay", "expired"],
+      enum: ["okay", "pending", "not_okay", "expired"],
       required: false,
     },
     are_update_date: {
@@ -214,7 +250,10 @@ const contractorFormSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
-
+    are_attachments: {
+      type: [attachmentSchema],
+      default: [],
+    },
     // RE fields
     re_name: {
       type: String,
@@ -226,7 +265,7 @@ const contractorFormSchema = new mongoose.Schema(
     },
     re_status: {
       type: String,
-     enum: ["okay","pending", "not_okay", "expired"],
+      enum: ["okay", "pending", "not_okay", "expired"],
       required: false,
     },
     re_update_date: {
@@ -237,36 +276,40 @@ const contractorFormSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
-    cons_stat_status:{
-      type:String,
-      enum:["pending","send_to_contractor","received_from_re","expired"],
+    re_attachments: {
+      type: [attachmentSchema],
+      default: [],
     },
-    cons_stat_name:{
-      type:String,
+    cons_stat_status: {
+      type: String,
+      enum: ["pending", "send_to_contractor", "received_from_re", "expired"],
     },
-    cons_stat_date:{
-      type:String,
+    cons_stat_name: {
+      type: String,
     },
-    cons_stat_time:{
-      type:String,
+    cons_stat_date: {
+      type: String,
     },
-    cont_rec_status:{
-      type:String,
-      enum:["pending","received","approved","rejected","expired"],
+    cons_stat_time: {
+      type: String,
     },
-    cont_rec_name:{
-      type:String,
+    cont_rec_status: {
+      type: String,
+      enum: ["pending", "received", "approved", "rejected", "expired"],
     },
-    cont_rec_date:{
-      type:String,
+    cont_rec_name: {
+      type: String,
     },
-    cont_rec_time:{
-      type:String,
+    cont_rec_date: {
+      type: String,
+    },
+    cont_rec_time: {
+      type: String,
     },
   },
   {
     timestamps: true,
-  }
+  },
 ); //  schema end
 // Pre-save hook to convert timestamps to Pakistan Standard Time (UTC+5)
 contractorFormSchema.pre("save", function (next) {
@@ -283,3 +326,4 @@ contractorFormSchema.pre("save", function (next) {
 const ContractorForm = mongoose.model("ContractorForm", contractorFormSchema);
 
 module.exports = ContractorForm;
+

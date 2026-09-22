@@ -6,7 +6,7 @@ const bcrypt = require("bcryptjs");
 // Generate JWT Token
 const generateToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
-    expiresIn: "30m",
+    expiresIn: "1d",
   });
 };
 // get User By role
@@ -33,7 +33,7 @@ const getUserByRole = async (req, res) => {
 // Signup
 const signup = async (req, res) => {
   try {
-    const { user_name, user_email, user_password, role } = req.body;
+    const { user_name, user_email, user_password,user_projects, role } = req.body;
     // Check if user already exists
     const existingUser = await User.findOne({ user_email });
     if (existingUser) {
@@ -46,6 +46,7 @@ const signup = async (req, res) => {
       user_name,
       user_email,
       user_password,
+      user_projects,
       role,
     });
     await newUser.save();
@@ -56,6 +57,7 @@ const signup = async (req, res) => {
       _id: newUser._id,
       user_name: newUser.user_name,
       user_email: newUser.user_email,
+      user_projects:newUser.user_projects,
       role: newUser.role,
       createdAt: newUser.createdAt,
       updatedAt: newUser.updatedAt,

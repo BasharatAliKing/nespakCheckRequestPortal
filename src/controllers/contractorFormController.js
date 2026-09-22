@@ -2,10 +2,13 @@ const express = require("express");
 const ContractorForm = require("../models/contractorFormModel");
 const cron = require("node-cron");
 const Project = require("../models/projectModel");
+const fs = require("fs");
+const path = require("path");
 // After 24 Hourse By default when submitted Contractor Status Will be Changed if any empty
 cron.schedule("* * * * *", async () => {
   const now = new Date();
-  const hours24 = 24 * 60 * 60 * 1000;
+  // request expired after 72 Hours.....
+  const hours24 = 72 * 60 * 60 * 1000;
   const pendingStatuses = ["pending"];
   // Fetch only forms where consultant has updated (accepted/processed)
   const forms = await ContractorForm.find({
@@ -987,6 +990,19 @@ const createContractorForm = async (req, res) => {
       return res.status(404).json({ message: "Project not found" });
     }
     contractorForm.project_title = project.project_title; // auto-fill title
+    // ----------------------------------
+    // CONTRACTOR ATTACHMENTS
+    // ----------------------------------
+
+    if (
+      req.files &&
+      req.files.length > 0
+    ) {
+      contractorForm.contractor_attachments =
+        req.files.map((file) => ({
+          file_path: `/uploads/form/${file.filename}`,
+        }));
+    }
 
     // ---------------- SAVE CONTRACTOR FORM ----------------
     const newContractorForm = new ContractorForm(contractorForm);
@@ -1042,39 +1058,190 @@ const getContractorFormById = async (req, res) => {
 const updateContractorForm = async (req, res) => {
   try {
     const contractorFormId = req.params.id;
-    const updatedData = req.body;
 
-    const updatedContractorForm = await ContractorForm.findByIdAndUpdate(
-      contractorFormId,
-      updatedData,
-      { new: true }
+    const updatedData = {
+      ...req.body,
+    };
+
+    // --------------------------------
+    // REMOVE ATTACHMENT FIELDS
+    // FROM req.body
+    // --------------------------------
+
+    delete updatedData.contractor_attachments;
+    delete updatedData.consultant_attachments;
+    delete updatedData.inspector_attachments;
+    delete updatedData.surveyor_attachments;
+    delete updatedData.me_attachments;
+    delete updatedData.are_attachments;
+    delete updatedData.re_attachments;
+
+    // --------------------------------
+    // FIND EXISTING FORM
+    // --------------------------------
+
+    const existingForm = await ContractorForm.findById(
+      contractorFormId
     );
 
-    if (!updatedContractorForm) {
-      return res.status(404).json({ message: "Contractor Form not found" });
+    if (!existingForm) {
+      return res.status(404).json({
+        message: "Contractor Form not found",
+      });
     }
-    res.status(200).json({
+
+    // --------------------------------
+    // UPDATE NORMAL DATA
+    // --------------------------------
+
+    Object.keys(updatedData).forEach((key) => {
+      existingForm[key] = updatedData[key];
+    });
+
+    // --------------------------------
+    // ADD NEW ATTACHMENTS
+    // --------------------------------
+
+    const attachmentFields = [
+      "contractor_attachments",
+      "consultant_attachments",
+      "inspector_attachments",
+      "surveyor_attachments",
+      "me_attachments",
+      "are_attachments",
+      "re_attachments",
+    ];
+
+    attachmentFields.forEach((field) => {
+      if (
+        req.files &&
+        req.files[field] &&
+        req.files[field].length > 0
+      ) {
+        const newAttachments = req.files[field].map(
+          (file) => ({
+            file_path: `/uploads/form/${file.filename}`,
+          })
+        );
+
+        // APPEND new files
+        existingForm[field].push(
+          ...newAttachments
+        );
+      }
+    });
+
+    // --------------------------------
+    // SAVE
+    // --------------------------------
+
+    const updatedContractorForm =
+      await existingForm.save();
+
+    return res.status(200).json({
       message: "Contractor Form Updated Successfully",
       updatedContractorForm,
     });
+
   } catch (err) {
-    res.status(400).json({ message: "Error in Updating Contractor Form", err });
+    console.error("Update Contractor Form Error:", err);
+
+    return res.status(400).json({
+      message: "Error in Updating Contractor Form",
+      error: err.message,
+    });
   }
 };
 const deleteContractorForm = async (req, res) => {
   try {
     const contractorFormId = req.params.id;
-    const deletedContractorForm = await ContractorForm.findByIdAndDelete(
+
+    // Find the form first
+    const contractorForm = await ContractorForm.findById(
       contractorFormId
     );
 
-    if (!deletedContractorForm) {
-      return res.status(404).json({ message: "Contractor Form not found" });
+    if (!contractorForm) {
+      return res.status(404).json({
+        message: "Contractor Form not found",
+      });
     }
 
-    res.status(200).json({ message: "Contractor Form Deleted Successfully" });
+    // --------------------------------
+    // ALL ATTACHMENT FIELDS
+    // --------------------------------
+
+    const attachmentFields = [
+      "contractor_attachments",
+      "consultant_attachments",
+      "inspector_attachments",
+      "surveyor_attachments",
+      "me_attachments",
+      "are_attachments",
+      "re_attachments",
+    ];
+
+    // --------------------------------
+    // DELETE PHYSICAL FILES
+    // --------------------------------
+
+    for (const field of attachmentFields) {
+      const attachments = contractorForm[field] || [];
+
+      for (const attachment of attachments) {
+        if (!attachment.file_path) continue;
+
+        // Convert:
+        // /uploads/form/contractor-123.pdf
+        //
+        // to:
+        // uploads/form/contractor-123.pdf
+
+        const relativePath = attachment.file_path.replace(
+          /^\/uploads[\\/]/,
+          ""
+        );
+
+        const filePath = path.join(
+          process.cwd(),
+          "uploads",
+          relativePath
+        );
+
+        // Check if file exists
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+
+          console.log(
+            `Deleted file: ${filePath}`
+          );
+        }
+      }
+    }
+
+    // --------------------------------
+    // DELETE DATABASE RECORD
+    // --------------------------------
+
+    await ContractorForm.findByIdAndDelete(
+      contractorFormId
+    );
+
+    return res.status(200).json({
+      message:
+        "Contractor Form and all attachments deleted successfully",
+    });
+
   } catch (err) {
-    res.status(400).json({ message: "Error in Deleting Contractor Form", err });
+    console.error(
+      "Delete Contractor Form Error:",
+      err
+    );
+
+    return res.status(400).json({
+      message: "Error in Deleting Contractor Form",
+      error: err.message,
+    });
   }
 };
 
