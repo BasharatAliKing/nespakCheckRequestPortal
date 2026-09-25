@@ -133,23 +133,47 @@ const getUserById = async (req, res) => {
   }
 };
 // Update user
+// Update user
 const updateUser = async (req, res) => {
   try {
     const userId = req.params.id;
-    const { user_name, user_email, user_password, role } = req.body;
+
+    const {
+      user_name,
+      user_email,
+      user_password,
+      user_projects,
+      role,
+    } = req.body;
 
     const user = await User.findById(userId);
+
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({
+        message: "User not found",
+      });
     }
 
-    // Update fields
-    if (user_name) user.user_name = user_name;
-    if (user_email) user.user_email = user_email;
-    if (role) user.role = role;
+    // Update basic fields
+    if (user_name) {
+      user.user_name = user_name;
+    }
 
-    // Update password if provided
-    if (user_password) {
+    if (user_email) {
+      user.user_email = user_email;
+    }
+
+    if (role) {
+      user.role = role;
+    }
+
+    // Update projects
+    if (Array.isArray(user_projects)) {
+      user.user_projects = user_projects;
+    }
+
+    // Update password only if provided
+    if (user_password && user_password.trim() !== "") {
       user.user_password = user_password;
     }
 
@@ -160,16 +184,24 @@ const updateUser = async (req, res) => {
       _id: user._id,
       user_name: user.user_name,
       user_email: user.user_email,
+      user_projects: user.user_projects,
       role: user.role,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
 
-    res
-      .status(200)
-      .json({ message: "User updated successfully", user: userResponse });
+    res.status(200).json({
+      message: "User updated successfully",
+      user: userResponse,
+    });
+
   } catch (err) {
-    res.status(400).json({ message: "Error in updating user", err });
+    console.error("Update user error:", err);
+
+    res.status(400).json({
+      message: "Error in updating user",
+      error: err.message,
+    });
   }
 };
 // Delete user
