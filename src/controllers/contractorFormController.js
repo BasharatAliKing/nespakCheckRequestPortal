@@ -1059,13 +1059,17 @@ const updateContractorForm = async (req, res) => {
   try {
     const contractorFormId = req.params.id;
 
+    // --------------------------------
+    // COPY NORMAL DATA
+    // --------------------------------
+
     const updatedData = {
       ...req.body,
     };
 
     // --------------------------------
     // REMOVE ATTACHMENT FIELDS
-    // FROM req.body
+    // FROM NORMAL UPDATE DATA
     // --------------------------------
 
     delete updatedData.contractor_attachments;
@@ -1075,6 +1079,9 @@ const updateContractorForm = async (req, res) => {
     delete updatedData.me_attachments;
     delete updatedData.are_attachments;
     delete updatedData.re_attachments;
+
+    // This is only used for deleting old files
+    delete updatedData.removed_contractor_attachments;
 
     // --------------------------------
     // FIND EXISTING FORM
@@ -1091,6 +1098,79 @@ const updateContractorForm = async (req, res) => {
     }
 
     // --------------------------------
+    // GET REMOVED CONTRACTOR ATTACHMENTS
+    // --------------------------------
+
+    let removedContractorAttachments = [];
+
+    if (req.body.removed_contractor_attachments) {
+      try {
+        removedContractorAttachments = JSON.parse(
+          req.body.removed_contractor_attachments
+        );
+
+        // Make sure it is actually an array
+        if (!Array.isArray(removedContractorAttachments)) {
+          removedContractorAttachments = [];
+        }
+      } catch (error) {
+        return res.status(400).json({
+          message:
+            "Invalid removed_contractor_attachments format",
+        });
+      }
+    }
+
+    // --------------------------------
+    // REMOVE OLD CONTRACTOR ATTACHMENTS
+    // --------------------------------
+
+    if (removedContractorAttachments.length > 0) {
+      removedContractorAttachments.forEach((filePath) => {
+        // Make sure filePath is a string
+        if (typeof filePath !== "string") {
+          return;
+        }
+
+        // --------------------------------
+        // REMOVE FROM DATABASE
+        // --------------------------------
+
+        if (Array.isArray(existingForm.contractor_attachments)) {
+          existingForm.contractor_attachments =
+            existingForm.contractor_attachments.filter(
+              (attachment) =>
+                attachment.file_path !== filePath
+            );
+        }
+
+        // --------------------------------
+        // REMOVE PHYSICAL FILE
+        // --------------------------------
+
+        const fullPath = path.join(
+          process.cwd(),
+          "public",
+          filePath
+        );
+
+        if (fs.existsSync(fullPath)) {
+          fs.unlinkSync(fullPath);
+
+          console.log(
+            "Deleted attachment:",
+            fullPath
+          );
+        } else {
+          console.log(
+            "Attachment file not found:",
+            fullPath
+          );
+        }
+      });
+    }
+
+    // --------------------------------
     // UPDATE NORMAL DATA
     // --------------------------------
 
@@ -1099,7 +1179,7 @@ const updateContractorForm = async (req, res) => {
     });
 
     // --------------------------------
-    // ADD NEW ATTACHMENTS
+    // ALL ATTACHMENT FIELDS
     // --------------------------------
 
     const attachmentFields = [
@@ -1111,6 +1191,10 @@ const updateContractorForm = async (req, res) => {
       "are_attachments",
       "re_attachments",
     ];
+
+    // --------------------------------
+    // ADD NEW ATTACHMENTS
+    // --------------------------------
 
     attachmentFields.forEach((field) => {
       if (
@@ -1124,7 +1208,12 @@ const updateContractorForm = async (req, res) => {
           })
         );
 
-        // APPEND new files
+        // Make sure array exists
+        if (!Array.isArray(existingForm[field])) {
+          existingForm[field] = [];
+        }
+
+        // Append new files
         existingForm[field].push(
           ...newAttachments
         );
@@ -1132,22 +1221,31 @@ const updateContractorForm = async (req, res) => {
     });
 
     // --------------------------------
-    // SAVE
+    // SAVE UPDATED FORM
     // --------------------------------
 
     const updatedContractorForm =
       await existingForm.save();
 
+    // --------------------------------
+    // RESPONSE
+    // --------------------------------
+
     return res.status(200).json({
-      message: "Contractor Form Updated Successfully",
+      message:
+        "Contractor Form Updated Successfully",
       updatedContractorForm,
     });
 
   } catch (err) {
-    console.error("Update Contractor Form Error:", err);
+    console.error(
+      "Update Contractor Form Error:",
+      err
+    );
 
     return res.status(400).json({
-      message: "Error in Updating Contractor Form",
+      message:
+        "Error in Updating Contractor Form",
       error: err.message,
     });
   }
