@@ -81,6 +81,11 @@ const contractorFormSchema = new mongoose.Schema(
       ],
       default: "pending",
     },
+    expiry_hours: {
+      type: Number,
+      min: [1, "Expiry time must be at least 1 hour"],
+      default: 72,
+    },
     contractor_submit_date: {
       type: String,
       // required: false,
@@ -326,4 +331,3 @@ contractorFormSchema.pre("save", function (next) {
 const ContractorForm = mongoose.model("ContractorForm", contractorFormSchema);
 
 module.exports = ContractorForm;
-

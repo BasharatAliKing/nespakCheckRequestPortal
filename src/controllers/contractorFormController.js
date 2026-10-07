@@ -4,11 +4,9 @@ const cron = require("node-cron");
 const Project = require("../models/projectModel");
 const fs = require("fs");
 const path = require("path");
-// After 24 Hourse By default when submitted Contractor Status Will be Changed if any empty
+// Check pending requests every minute and expire each one using its configured duration.
 cron.schedule("* * * * *", async () => {
   const now = new Date();
-  // request expired after 72 Hours.....
-  const hours24 = 72 * 60 * 60 * 1000;
   const pendingStatuses = ["pending"];
   // Fetch only forms where consultant has updated (accepted/processed)
   const forms = await ContractorForm.find({
@@ -29,8 +27,16 @@ cron.schedule("* * * * *", async () => {
     );
     // If parsing failed skip
     if (!consultantUpdatedAt || isNaN(consultantUpdatedAt)) continue;
-    // Check if 24h has passed
-    if (now - consultantUpdatedAt >= hours24) {
+    const expiryHours = Number(form.expiry_hours ?? 72);
+    if (!Number.isFinite(expiryHours) || expiryHours < 1) {
+      console.error(
+        `Invalid expiry_hours for contractor form ${form._id}:`,
+        form.expiry_hours
+      );
+      continue;
+    }
+    const expiryMilliseconds = expiryHours * 60 * 60 * 1000;
+    if (now - consultantUpdatedAt >= expiryMilliseconds) {
       if (pendingStatuses.includes(form.inspector_status)) {
         form.inspector_status = "expired";
         form.contractor_status="expired";
