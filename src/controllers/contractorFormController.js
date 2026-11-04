@@ -295,6 +295,7 @@ const getContractorkpisByRoleAndId = async (req, res) => {
     // role → schema field mapping
     const roleFieldMap = {
       contractor: "selected_contractor",
+      
       inspector: "selected_inspector",
       surveyor: "selected_surveyor",
       me: "selected_me",

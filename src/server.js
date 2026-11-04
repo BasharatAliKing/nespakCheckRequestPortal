@@ -10,6 +10,8 @@ const contractorRouter = require("./routes/contractorRouter");
 const consultantRouter = require("./routes/consultantRouter");
 const userRouter = require("./routes/userRouter");
 const projectRouter = require("./routes/projectRouter");
+const boqRouter = require("./routes/bodRouter");
+const ncrpBoqRouter = require("./routes/ncrpBoqRouter");
 require("./db/conn");
 const allowedOrigins = [
   "https://ncrp.cmsurveycell.com",
@@ -35,6 +37,8 @@ app.use("/api", contractorRouter);
 app.use("/api", consultantRouter);
 app.use("/api", userRouter);
 app.use("/api", projectRouter);
+app.use("/api", boqRouter);
+app.use("/api", ncrpBoqRouter);
 app.use("/", (req, res) => {
   res.send("Hello from the Server Side...");
 });
